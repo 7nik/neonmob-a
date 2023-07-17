@@ -52,7 +52,7 @@ abstract class Paginator<T> implements Readable<T[]> {
             this.#store.set(this.#items);
             return data.items;
         } catch (ex) {
-            console.error("Failed to load data", ex);
+            console.error("Paginator: failed to load data", ex);
             this.#next = null;
             return [];
         } finally {

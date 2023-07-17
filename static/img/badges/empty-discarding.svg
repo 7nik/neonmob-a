@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="158px" height="156px" viewBox="0 0 158 156" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>BF404462-E851-4B5D-94F3-21DEE7D3B8B0</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <polygon id="path-1" points="79 157 158 109.5 79 1 1.42108547e-14 109.5"></polygon>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="158" height="156" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Milestones---V3" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="111.0-Milestones---Core" transform="translate(-992.000000, -1841.000000)">
+            <g id="Milestones-/-Empty_Discarding" transform="translate(992.000000, 1840.000000)">
+                <rect id="Rectangle" fill-rule="nonzero" x="0" y="0" width="158" height="158"></rect>
+                <use id="Path" stroke="#C6C5C6" mask="url(#mask-2)" stroke-width="6" fill-opacity="0.3" fill="#EFEFEF" stroke-dasharray="10,8" xlink:href="#path-1"></use>
+            </g>
+        </g>
+    </g>
+</svg>

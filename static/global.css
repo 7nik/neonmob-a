@@ -1,0 +1,177 @@
+
+@font-face {
+    font-family: locator-web;
+    src:
+        url(/font/locator-web/n2.woff2) format("woff2"),
+        url(/font/locator-web/n2.woff) format("woff"),
+        url(/font/locator-web/n2.otf) format("opentype");
+    font-weight: 200;
+    font-style: normal;
+    font-stretch: normal;
+    font-display: auto;
+}
+@font-face {
+    font-family: locator-web;
+    src:
+        url(/font/locator-web/n3.woff2) format("woff2"),
+        url(/font/locator-web/n3.woff) format("woff"),
+        url(/font/locator-web/n3.otf) format("opentype");
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    font-display: auto;
+}
+@font-face {
+    font-family: locator-web;
+    src:
+        url(/font/locator-web/i3.woff2) format("woff2"),
+        url(/font/locator-web/i3.woff) format("woff"),
+        url(/font/locator-web/i3.otf) format("opentype");
+    font-weight: 300;
+    font-style: italic;
+    font-stretch: normal;
+    font-display: auto;
+}
+@font-face {
+    font-family: locator-web;
+    src:
+        url(/font/locator-web/n4.woff2) format("woff2"),
+        url(/font/locator-web/n4.woff) format("woff"),
+        url(/font/locator-web/n4.otf) format("opentype");
+    font-weight: 400;
+    font-style: normal;
+    font-stretch: normal;
+    font-display: auto;
+}
+@font-face {
+    font-family: locator-web;
+    src:
+        url(/font/locator-web/i4.woff2) format("woff2"),
+        url(/font/locator-web/i4.woff) format("woff"),
+        url(/font/locator-web/i4.otf) format("opentype");
+    font-weight: 400;
+    font-style: italic;
+    font-stretch: normal;
+    font-display: auto;
+}
+@font-face {
+    font-family: locator-web;
+    src:
+        url(/font/locator-web/n5.woff2) format("woff2"),
+        url(/font/locator-web/n5.woff) format("woff"),
+        url(/font/locator-web/n5.otf) format("opentype");
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    font-display: auto;
+}
+@font-face {
+    font-family: locator-web;
+    src:
+        url(/font/locator-web/i5.woff2) format("woff2"),
+        url(/font/locator-web/i5.woff) format("woff"),
+        url(/font/locator-web/i5.otf) format("opentype");
+    font-weight: 500;
+    font-style: italic;
+    font-stretch: normal;
+    font-display: auto;
+}
+/* For fonts generated using Glyphter */
+@font-face {
+    font-family: 'glyphter nm icon font';
+    src: url(/font/nm-icon-font.woff) format('woff'),
+        url(/font/nm-icon-font.ttf) format('truetype'),
+        url(/font/LocatorDisplayBold.otf) format('otf');
+    font-weight: normal;
+    font-style: normal;
+}
+/* For fonts generated using Icomoon (https://icomoon.io/app/#/select) */
+@font-face {
+    font-family: 'icomoon nm icon font';
+    src:
+        url(/font/nm-icon-im-font.woff) format('woff'),
+        url(/font/nm-icon-im-font.svg) format('svg'),
+        url(/font/nm-icon-im-font.ttf) format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    display: flex;
+    flex-direction: column;
+    font: 300 15px locator-web,Helvetica Neue,Helvetica,Arial,sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #5f5668;
+    background: #efefef;
+}
+body * {
+    outline: 0;
+    box-sizing: border-box;
+}
+h1, h2, h3 {
+    /* color: #2c2830; */
+    font-size: 30px;
+    margin: 0 0 20px;
+    font-size: 30px;
+    font-weight: 300;
+}
+h2 {
+    font-size: 22px;
+}
+h3 {
+    font-size: 15px;
+    font-weight: 400;
+    margin: 0;
+}
+hr {
+    border: none;
+    border-bottom: 1px solid #d6d6d6;
+    margin: 0 0 20px;
+}
+a:link, a:visited, .link {
+    color: #0d9ce6;
+    text-decoration: none;
+    cursor: pointer;
+}
+a:link:hover, a:visited:hover, .link:hover {
+    color: #085b85;
+}
+a:active, a:hover {
+    outline: 0;
+}
+.dark a:link, .dark a:visited, .dark .link {
+    color: #93d6f9;
+}
+.dark a:link:hover, .dark a:visited:hover, .dark .link:hover {
+    color: #c3e8fc;
+}
+input, textarea {
+    font-family: inherit;
+    font-size: normal;
+    color: #2c2830;
+    vertical-align: middle;
+}
+p {
+    line-height: 140%;
+    font-weight: 400;
+    margin: 0 0 20px;
+}
+p:last-child, p:last-of-type {
+    margin: 0;
+}
+strong {
+    color: #2c2830;
+    font-weight: 400;
+}
+.pipe {
+    height: 1em;
+    border-right: 1px solid currentColor;
+    margin: 0 .5em;
+    display: inline-block;
+    vertical-align: middle;
+}

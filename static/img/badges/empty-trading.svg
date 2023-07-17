@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="136px" height="158px" viewBox="0 0 136 158" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>C5EAB88A-7C58-48CB-A767-ACA5563A951A</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <path d="M75,1.64447479e-12 C106.992768,1.78964743e-12 51,1.50087221e-12 83,1.36424205e-12 C115,1.23969417e-12 147,18.4507616 147,40 C147,61.5492384 147,84.6184214 147,118 C147,151.381579 87,158 83,158 C79,158 107,158 75,158 C43,158 11,139.715361 11,118 C11,96.2846394 11,70.6337129 11,44 C11,17.3662871 43.0072324,1.5010291e-12 75,1.64447479e-12 Z" id="path-1"></path>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="136" height="158" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Milestones---V3" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="111.0-Milestones---Core" transform="translate(-769.000000, -453.000000)">
+            <g id="Milestones-/-Empty_Trading" transform="translate(758.000000, 453.000000)">
+                <rect id="bg" fill-rule="nonzero" x="0" y="0" width="158" height="158"></rect>
+                <use id="shape" stroke="#C6C5C6" mask="url(#mask-2)" stroke-width="6" fill-opacity="0.3" fill="#EFEFEF" stroke-dasharray="10,8" transform="translate(79.000000, 79.000000) rotate(-180.000000) translate(-79.000000, -79.000000) " xlink:href="#path-1"></use>
+            </g>
+        </g>
+    </g>
+</svg>

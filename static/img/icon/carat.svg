@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30px" height="30px" viewBox="0 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>28F30531-2FAC-45A7-A155-94889802317A</title>
+    <desc>Created with sketchtool.</desc>
+    <g id="Master-Document" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Neonmob---Master-Assets" transform="translate(-120.000000, -816.000000)">
+            <g id="Carats-30px-Icons_20-/-Carats" transform="translate(120.000000, 816.000000)">
+                <g id="Icons_20/Points_1Background-Icons_20-/-Points_1Background" fill="#5980ED">
+                    <g id="Icons_20/Points_1Background">
+                        <polygon id="bg" points="0 21 0 9 9 0 21 0 30 9 30 21 21 30 9 30"></polygon>
+                    </g>
+                </g>
+                <g id="Icons_20/Points_2Light-Icons_20-/-Points_2Light" fill="#FFFFFF" opacity="0.400000006">
+                    <path d="M10.9203105,0 L1.77635684e-15,10.9203105 L0,9 L9,0 L10.9203105,3.55271368e-15 Z" id="Combined-Shape"></path>
+                    <g id="Icons_20/Points_2Light">
+                        <path d="M18.9203101,-8.8817842e-16 L0,18.9203101 L0,13.2634558 L13.2634558,5.32907052e-15 L18.9203101,1.77635684e-15 Z" id="Combined-Shape"></path>
+                    </g>
+                </g>
+                <g id="Icons_20-/Points_3Details-Icons_20-/-Points_3Details">
+                    <g id="Icons_20/Points_3Details">
+                        <path d="M0,21 L0,9 L9,0 L21,0 L30,9 L30,21 L21,30 L9,30 L0,21 Z" id="Combined-Shape"></path>
+                        <path d="M14.9720905,19.4588834 L17.4349052,14.8499999 L12.4799879,14.8499999 L14.9720905,19.4588834 Z M11.1157958,14.8499999 L9.79705606,14.8499999 L12.6683584,17.7213022 L11.1157958,14.8499999 Z M10.6725169,13.6499999 L10.8429822,12.6040742 L9.79705664,13.6499999 L10.6725169,13.6499999 Z M11.88835,13.6499999 L14.2029436,13.6499999 L12.2127178,11.659774 L11.88835,13.6499999 Z M14.7287929,21.4787929 L14.7065899,21.4907985 L14.6663159,21.4163159 L7.5,14.25 L12,9.75 L15,12.75 L18,9.75 L22.5,14.25 L15,21.75 L14.7287929,21.4787929 Z M17.1802978,17.8726463 L20.2029443,14.8499999 L18.7954869,14.8499999 L17.1802978,17.8726463 Z M19.0672504,12.5143065 L19.2355312,13.6499999 L20.2029437,13.6499999 L19.0672504,12.5143065 Z M17.73524,11.7118166 L15.7970567,13.6499999 L18.0224293,13.6499999 L17.73524,11.7118166 Z M4.5,18.9940643 L11.0059357,25.5 L18.9940643,25.5 L25.5,18.9940643 L25.5,11.0059357 L18.9940643,4.5 L11.0059357,4.5 L4.5,11.0059357 L4.5,18.9940643 Z M3,19.6153846 L3,10.3846154 L10.3846154,3 L19.6153846,3 L27,10.3846154 L27,19.6153846 L19.6153846,27 L10.3846154,27 L3,19.6153846 Z" id="Combined-Shape" fill="#213A7F" fill-rule="nonzero"></path>
+                        <g id="Group-7" transform="translate(10.500000, 9.750000)"></g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

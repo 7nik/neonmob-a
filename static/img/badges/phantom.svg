@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="152px" height="158px" viewBox="0 0 152 158" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: sketchtool 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>ADE5ADBD-7601-4A90-8590-19D331ABDA37</title>
+    <desc>Created with sketchtool.</desc>
+    <defs>
+        <polygon id="path-1" points="79 0 125.435035 15.0876574 154.133465 54.5876574 154.133465 103.412343 125.435035 142.912343 79 158 32.5649651 142.912343 3.86653521 103.412343 3.86653521 54.5876574 32.5649651 15.0876574"></polygon>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="158" height="158" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Milestones---V3" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" fill-opacity="0.3" stroke-dasharray="10,8">
+        <g id="111.0-Milestones---Core" transform="translate(-293.000000, -3554.000000)" fill="#EFEFEF" stroke="#C6C5C6" stroke-width="6">
+            <g id="Milestones-/-Empty_Collection" transform="translate(290.000000, 3554.000000)">
+                <use id="Polygon" mask="url(#mask-2)" xlink:href="#path-1"></use>
+            </g>
+        </g>
+    </g>
+</svg>

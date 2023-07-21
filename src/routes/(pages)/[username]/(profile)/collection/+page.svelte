@@ -5,6 +5,7 @@
     import Select from "$elem/Select.svelte";
     import SettTile from "$elem/SettTile.svelte";
     import currentUser from "$lib/services/currentUser";
+    import { infiniteScroll } from "$lib/utils/utils";
 
     export let data;
 
@@ -62,6 +63,8 @@
             { favorite },
         );
     }
+
+    infiniteScroll(() => setts.loadMore());
 </script>
 
 <section class="filters">

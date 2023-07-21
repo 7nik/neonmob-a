@@ -5,9 +5,9 @@
     import type { ID, rarityCss } from "$lib/utils/NM Types";
     import type NM from "$lib/utils/NM Types";
 
-    import { StaticPaginator } from "$api";
+    import { EndlessPaginator, StaticPaginator } from "$api";
     import CardTile from "$elem/CardTile.svelte";
-    import PushSwitch from "$elem/PushSwitch.svelte";
+    import Filters, { type FiltersSchema } from "$elem/Filters.svelte";
     import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
     import { viewPrint } from "$lib/overlays";
     import currentUser from "$lib/services/currentUser";
@@ -27,24 +27,47 @@
      */
     export let isPublic = false;
 
-    // filters are applied only when non-falsy
-    let favorite = false;
-    /**
-     * 0 - off
-     * 1 - unowned
-     * 2 - owned
-     */
-    let own: 0|1|2 = 0;
-    let duplicate = false;
     const rarities: {
+        key: string,
+        hint: string,
         name: string,
-        class: rarityCss,
-        selected: boolean,
+        value: boolean,
+        icons: rarityCss,
     }[] = [...sett.core_stats, ...sett.special_stats].map((stat) => ({
+        key: stat.class_name,
+        hint: capitalize(stat.name),
         name: capitalize(stat.name),
-        class: stat.class_name,
-        selected: false,
+        value: false,
+        icons: stat.class_name,
     }));
+    const userFilers: FiltersSchema["buttons"] = [];
+    if (currentUser.isAuthenticated) {
+        userFilers.push({
+            key: "favorite",
+            hint: "Favorites",
+            name: "Favorites",
+            value: false,
+            icons: ["like", "liked"],
+        });
+    }
+    if (!isPublic) {
+        userFilers.push({
+            key: "owned",
+            hint: "Ownership",
+            name: ["Unowned", "Unowned", "Owned"],
+            value: 0,
+            icons: ["filterUnowned", "unowned", "owned"],
+        }, {
+            key: "duplicate",
+            hint: "Duplicates",
+            name: "Duplicates",
+            value: false,
+            icons: "duplicate",
+        });
+    }
+
+    let filters: Record<string, any> = {};
+
     let cards: NM.Card[] = [];
     let isUserCollecting: boolean;
     collection.then((data) => {
@@ -61,16 +84,22 @@
             // eslint-disable-next-line no-labels
             break $;
         }
-        const allowedRarities = rarities.some((r) => r.selected)
-            ? rarities.filter((r) => r.selected).map((r) => r.class)
+        const allowedRarities = rarities.some((r) => filters[r.key])
+            ? rarities.filter((r) => filters[r.key]).map((r) => r.icons)
             : null;
+        const { favorite, duplicate, owned: own } = filters;
         filteredCards = cards.filter((card) => (
+            // FIXME doesn't work in the preview cards mode
             (!favorite || favorite && card.favorite)
             && (!duplicate || duplicate && card.own_count > 1)
             && (!own || own === 1 && card.own_count === 0 || own === 2 && card.own_count > 0)
             && (!allowedRarities || allowedRarities.includes(card.rarity.class))
         ));
     }
+
+    $: paginator = cards.length > 0
+        ? new StaticPaginator(filteredCards, 16)
+        : new EndlessPaginator<NM.Card>();
 
     function viewCard (cardId: ID<"card">) {
         const ownedCards = isPublic || !currentUser.isAuthenticated
@@ -83,39 +112,11 @@
     }
 </script>
 
-<section class="filters">
-    <span class="user-filters">
-        <!-- FIXME - check if is somebody's collection instead -->
-        <span class="label">FILTERS:</span>
-        {#if $currentUser.isAuthenticated}
-            <PushSwitch
-                bind:value={favorite}
-                icons={["like", "liked"]}
-                hint="Favorites"
-            >Favorite</PushSwitch>
-        {/if}
-        {#if !isPublic}
-            <PushSwitch
-                bind:value={own}
-                icons={["filterUnowned", "unowned", "owned"]}
-                hint="Ownership"
-            >{own === 2 ? "Owned" : "Unowned"}</PushSwitch>
-            <PushSwitch
-                bind:value={duplicate}
-                icons={"duplicate"}
-                hint="Duplicates"
-            >Duplicates</PushSwitch>
-        {/if}
-    </span>
-
-    <span class="rarity-filters">
-        {#each rarities as rarity}
-            <PushSwitch bind:value={rarity.selected} icons={rarity.class} hint={rarity.name} />
-        {/each}
-    </span>
-</section>
-
-<TwoOrFourColumns items={new StaticPaginator(filteredCards, 16)}
+<Filters schema={{
+    buttons: userFilers,
+    group: rarities,
+}} bind:filters />
+<TwoOrFourColumns items={paginator}
     itemHeight={(card) => scaleHeight(card.piece_assets.image.medium, 240)}
     let:item
 >
@@ -128,67 +129,3 @@
         {/if}
     </svelte:fragment>
 </TwoOrFourColumns>
-
-<style>
-    .filters {
-        margin-top: 20px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-    .filters .user-filters {
-        display: flex;
-        gap: 5px;
-        color: #857A90;
-        font-size: 0;
-        font-weight: 500;
-        line-height: 1.4;
-        --icon-size: 16px;
-        --icon-color: #857A90;
-    }
-    .filters .user-filters .label {
-        align-self: center;
-        font-size: 12px;
-        line-height: normal;
-    }
-    .filters .user-filters > :global(:not(.label)) {
-        width: 48px;
-        height: 42px;
-    }
-    .filters .rarity-filters {
-        height: 42px;
-        width: 50%;
-        display: flex;
-        border: 1px solid #d6d6d6;
-        border-radius: 4px;
-        --icon-size: 20px;
-    }
-    .filters .rarity-filters > :global(*) {
-        flex-grow: 1;
-        box-shadow: none;
-        border-right: 1px solid #d6d6d6;
-        border-radius: 0;
-    }
-    .filters .rarity-filters > :global(:last-child) {
-        border-right: none;
-    }
-
-    @media screen and (max-width: 480px) {
-        .filters .user-filters {
-           font-size: 13px;
-           width: 100%;
-           color: #39343e;
-        }
-        .filters .user-filters .label {
-           display: none;
-        }
-        .filters .user-filters > :global(:not(.label)) {
-            flex-grow: 1;
-            width: auto;
-           font-weight: 400;
-        }
-        .filters .rarity-filters {
-            width: 100%;
-        }
-    }
-</style>

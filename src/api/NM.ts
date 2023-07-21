@@ -459,16 +459,12 @@ export async function getTrade (id: ID<"trade">) {
  */
 export function getUserCards (
     id: ID<"user">,
-    sorting: string,
-    desc: boolean,
     filters: Record<string, boolean>,
     f = fetch,
 ) {
     const params = {
         ...filters,
         user: id,
-        orderBy: sorting,
-        order: desc ? "desc" : "asc",
     } as GetParams;
     return new PagePaginator<NM.OwnedCard>(makeUrl(
         "api",

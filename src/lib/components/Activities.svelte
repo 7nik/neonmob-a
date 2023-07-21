@@ -4,7 +4,6 @@
 <script lang="ts">
     import type { Paginator } from "$api";
     import type NM from "$lib/utils/NM Types";
-    import type { rarityCss } from "$lib/utils/NM Types";
     import { page } from "$app/stores";
     import { getActivityItem, ProxyPaginator } from "$api";
     import Activity, { activityHeight } from "$elem/activity/Activity.svelte";
@@ -17,7 +16,9 @@
      */
     export let paginator: Paginator<NM.ActivityAny>;
 
-    const rarityPrice: Record<rarityCss, number> = {
+    const rarityPrice: Record<string, number> = {
+        undefined: 1,
+        null: 1,
         common: 1,
         uncommon: 2,
         rare: 4,
@@ -27,9 +28,13 @@
         variant: 24,
         legendary: 200,
     };
+    /**
+     * How much the trade is imbalanced in terms of rarities
+     * 0 - perfectly balanced, >0 - bidder's cards are more expensive, <0 - responder's are such
+     */
     function getTradeImbalance (trade: NM.ActivityTrade | NM.ActivityStoryTrade) {
-        let bidderPrice = rarityPrice[trade.bidder.rarest_piece.rarity];
-        let responderPrice = rarityPrice[trade.responder.rarest_piece.rarity];
+        let bidderPrice = rarityPrice[trade.bidder.rarest_piece?.rarity];
+        let responderPrice = rarityPrice[trade.responder.rarest_piece?.rarity];
         if ("items" in trade.bidder && "items" in trade.responder) {
             for (const item of trade.bidder.items) {
                 bidderPrice += rarityPrice[item.rarity];
@@ -38,14 +43,14 @@
                 responderPrice += rarityPrice[item.rarity];
             }
         }
-        return Math.round(bidderPrice > responderPrice
-            ? bidderPrice / responderPrice
-            : responderPrice / bidderPrice);
+        return Math.round(bidderPrice >= responderPrice
+            ? bidderPrice / responderPrice - 1
+            : 1 - responderPrice / bidderPrice);
     }
 
     let stats = [{
         userId: 0,
-        name: "Total",
+        name: ($page.data.user as NM.User)?.name ?? "Total",
         link: "",
         trades: new Set(),
         cards: [0, 0],
@@ -58,45 +63,27 @@
         cards: [number, number],
         score: number,
     }[];
+    // adds the trade into the statistics
     // eslint-disable-next-line sonarjs/cognitive-complexity
     function countStats (
         trade: NM.ActivityTrade | NM.ActivityStoryTrade,
         tradeId: number,
         imbalance: number,
     ) {
-        const un = $page.params.username;
-        if (!un) return;
-        let id: number;
-        let name: string;
-        let link: string;
-        let userCards: number;
-        let partnerCards: number;
-        if ("type" in trade) {
-            ({ id, full_name: name, profile_url: link } = trade.bidder.profile_url === `/${un}`
-                ? trade.responder
-                : trade.bidder);
-            if (trade.bidder.profile_url === `/${un}`) {
-                userCards = trade.bidder.amt_items;
-                partnerCards = trade.responder.amt_items;
-            } else {
-                userCards = trade.responder.amt_items;
-                partnerCards = trade.bidder.amt_items;
-            }
-        } else {
-            ({ id, full_name: name, profile_url: link } = trade.bidder.user.username === un
-                ? trade.responder.user
-                : trade.bidder.user);
-            if (trade.bidder.user.username === un) {
-                userCards = trade.bidder.amt_items;
-                partnerCards = trade.responder.amt_items;
-            } else {
-                userCards = trade.responder.amt_items;
-                partnerCards = trade.bidder.amt_items;
-            }
-        }
+        if (stats[0].trades.has(tradeId)) return;
+        const userId = ($page.data.user as NM.User)?.id;
+        if (!userId) return;
+
+        const isPartnerBidder = ("type" in trade ? trade.bidder : trade.bidder.user).id !== userId;
+        // info of the trade partner
+        const { id, full_name: name, profile_url: link } = isPartnerBidder
+            ? ("type" in trade ? trade.bidder : trade.bidder.user)
+            : ("type" in trade ? trade.responder : trade.responder.user);
+        const partnerCards = isPartnerBidder ? trade.bidder.amt_items : trade.responder.amt_items;
+        const userCards = isPartnerBidder ? trade.responder.amt_items : trade.bidder.amt_items;
+
         const stat = stats.find((item) => item.userId === id);
         if (stat) {
-            if (stat.trades.has(tradeId)) return;
             stat.trades.add(tradeId);
             stat.score += imbalance;
             stat.cards[0] += partnerCards;
@@ -115,7 +102,8 @@
         stats[0].cards[0] += userCards;
         stats[0].cards[1] += partnerCards;
         stats[0].score += imbalance;
-        stats = stats.sort((a, b) => b.score - a.score);
+        // keep the target user info on the first place, the rest sort by score
+        stats = stats.sort((a, b) => (a.link && b.link ? b.score - a.score : (a.link ? 1 : -1)));
     }
 
     const cache = {} as Record<number, Promise<NM.ActivityStoryTrade>>;
@@ -126,7 +114,7 @@
         let imbalance = getTradeImbalance(item);
         if (item.bidder.amt_items === 1
             && item.responder.amt_items === 1
-            && imbalance < threshold
+            && Math.abs(imbalance) < threshold
         ) {
             countStats(item, tradeId, imbalance);
             return null;
@@ -142,9 +130,9 @@
         }
         imbalance = getTradeImbalance(trade);
         countStats(item, tradeId, imbalance);
-        if (imbalance > threshold) return { ...item, imbalance };
+        if (Math.abs(imbalance) < threshold) return null;
 
-        return null;
+        return { ...item, imbalance };
     }
 
     let filterActivity = false;
@@ -184,7 +172,7 @@
             </label>
             {#if stats.length > 1}
                 <!-- eslint-disable-next-line max-len -->
-                {@const sus = stats.filter((user, i) => !i || user.score * 1.5 / user.trades.size > threshold)}
+                {@const sus = stats.filter((user, i) => !i || Math.abs(user.score) * 1.5 / user.trades.size > threshold)}
                 {#each sus as user, i}
                     <div>
                         {#if i}
@@ -196,7 +184,7 @@
                         <small>
                             ({user.cards[0]}/{user.cards[1]} cards)
                         </small>
-                        with ~{Math.round(user.score / user.trades.size)} points
+                        with ~{Math.abs(Math.round(user.score / user.trades.size))} poi
                     </div>
                 {/each}
                 <i>{stats.length - sus.length - 1} traders skipped</i>
@@ -208,7 +196,7 @@
             <span class="column">
                 {#each column as activity}
                     {#if "imbalance" in activity}
-                        <span data-num={activity.imbalance}>
+                        <span data-num={Math.abs(Number(activity.imbalance))}>
                             <Activity {activity} />
                         </span>
                     {:else}
@@ -271,7 +259,7 @@
     @media screen and (min-width: 1700px) {
         .stats {
             position: sticky;
-            top: 10px;
+            top: 50px;
             height: 0;
             margin-left: calc(50% + 480px);
             text-align: left;

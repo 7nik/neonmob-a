@@ -1,6 +1,5 @@
 import type { absoluteURL, ID } from "$lib/utils/NM Types";
 import type NM from "$lib/utils/NM Types";
-import type NMA from "$lib/utils/NMA Types";
 
 import { ArrayPaginator, PagePaginator } from "./paginator";
 import {
@@ -238,7 +237,7 @@ export function getConversationInfo (id: ID<"user">) {
  * @returns paginated array of matched results
  */
 export function getCreator (id: ID<"creator">, f = fetch) {
-    return get<NMA.Creator>("api", `/creator/profile/${id}/`, {}, f);
+    return get<NM.Creator>("api", `/creator/profile/${id}/`, {}, f);
 }
 
 /**

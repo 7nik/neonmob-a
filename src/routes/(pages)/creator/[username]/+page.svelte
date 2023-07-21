@@ -134,7 +134,7 @@
 {/if}
 
 <article class="activity">
-    <SectionHeader title="People Collecting {creator.first_name}'s Work" />
+    <SectionHeader title="People Collecting {user.first_name}'s Work" />
     <Activities paginator={ArrayPaginator.fromPOJO(p.activities)} />
 </article>
 

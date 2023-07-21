@@ -1,3 +1,6 @@
+<!-- @component
+    Represents the data as two or four columns depending on the window size
+ -->
 <script lang="ts">
     import type { Paginator } from "$api";
 
@@ -23,6 +26,8 @@
             !items.hasMore,
         );
     }
+    // clear data when receive new paginator
+    $: if (items) columns = [];
 
     infiniteScroll(() => items.loadMore());
 </script>
@@ -78,6 +83,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        text-align: center;
         gap: 20px;
         color: #857a90;
         font-size: 15px;

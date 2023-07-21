@@ -12,12 +12,14 @@
 <ActivityBase {activity} actionText="Hit a milestone" user1={activity.user}
     shareText="{activity.user.full_name} hit a milestone on @NeonMob!"
 >
-    <div>
+    <div class="activity">
         <h3>{activity.name}</h3>
         {#if activity.sett_name}
             <p>for {activity.sett_name}</p>
         {/if}
-        <img src={activity.image_url} alt="Badge icon"/>
+        <div class="img">
+            <img src={activity.image_url} alt="Badge icon"/>
+        </div>
         <p>{activity.description}</p>
     </div>
     <div class="overlay"></div>
@@ -25,7 +27,7 @@
 
 
 <style>
-    div {
+    .activity {
         padding: 30px 0;
         color: #2c2830;
         background-position: center center;
@@ -44,11 +46,14 @@
         font-size: 13px;
         font-style: italic;
     }
-    img {
+    .img {
         width: 160px;
-        height: 160px;
+        max-height: 160px;
         margin: 0 auto;
-        display: block;
+    }
+    img {
+        max-width: 100%;
+        max-height: 100%;
     }
     .overlay {
         position: absolute;

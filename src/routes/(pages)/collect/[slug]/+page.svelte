@@ -161,7 +161,7 @@
                 <PushSwitch
                     icons={["owned", "owned", "unowned"]}
                     bind:value={owned}
-                    hint="Toggle between series you own, series you don’t own, and All Series"
+                    hint="Toggle between series you own, series you don't own, and All Series"
                 >
                     <span class="hide-on-small">{["All", "Owned", "Unowned"][owned]}</span>
                 </PushSwitch>

@@ -31,6 +31,8 @@
     export let activity: NM.ActivityAny;
 </script>
 
+<svelte:options immutable />
+
 {#if activity.type === "badge-earned"}
     <ActivityBadge {activity} />
 {:else if activity.type === "pack-opened"}

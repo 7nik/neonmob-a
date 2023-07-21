@@ -32,7 +32,8 @@
 </script>
 
 <section>
-    <Cards rarestCard={offer.rarest_piece}
+    <!-- seems the cards can be missing if it was moved to encore pack -->
+    <Cards rarestCard={offer.rarest_piece ?? {}}
         restCards={offer.items}
         owner={offer.user}
     />

@@ -123,6 +123,7 @@
         "rare",
         "veryRare",
         "extraRare",
+        "extremelyRare", // for compatibility with old data
         "core",
         "chase",
         "variant",
@@ -258,7 +259,7 @@
     .veryRare {
         background-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"%3e%3cpath fill="%23b981ed" d="M2 3v4l3 3 3-3V3L5 0Z"/%3e%3cpath fill="%23a14de8" d="M2 3v4h2V3Z"/%3e%3cpath fill="%237c00df" d="M4 7H2l3 3V8Z"/%3e%3cpath fill="%23d49ef7" d="M8 3H6v4h2Z"/%3e%3cpath fill="%23f1e5fc" d="M5 0v2l1 1h2Z"/%3e%3c/svg%3e');
     }
-    .extraRare {
+    .extraRare, .extremelyRare {
         background-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"%3e%3cpath fill="%23e82c8e" d="m0 4 5 5 5-5-3-3H3Z"/%3e%3cpath fill="%23c61555" d="M0 4h2l3 3v2Z"/%3e%3cpath fill="%23f7acd3" d="M7 1v2l1 1h2Z"/%3e%3cpath fill="%23ed6caf" d="M3 1v2h4V1Z"/%3e%3c/svg%3e');
     }
     .core {

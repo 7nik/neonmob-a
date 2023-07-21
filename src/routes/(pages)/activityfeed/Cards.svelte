@@ -45,14 +45,17 @@
 
 <div>
     <Clickable on:click={() => viewCard(rarestCard)}>
-        <figure>
+        <figure style:aspect-ratio={rarestCard.large_image
+            ? rarestCard.large_image.width / rarestCard.large_image.height
+            : 0}
+        >
             {#if rarestCard.large_video}
-                <video poster={rarestCard.large_image.url} loop muted autoplay>
-                    {#each rarestCard.large_video.sources as source}
+                <video poster={rarestCard.large_image?.url} loop muted autoplay>
+                    {#each rarestCard.large_video?.sources as source}
                         <source src={source.url} type={source.mime_type}>
                     {/each}
                 </video>
-            {:else}
+            {:else if rarestCard.large_image}
                 <img src={rarestCard.large_image.url}
                     alt="Card {rarestCard.name}"
                 />

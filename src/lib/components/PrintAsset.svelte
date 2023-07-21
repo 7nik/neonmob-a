@@ -211,7 +211,10 @@
 <svelte:options immutable/>
 
 <!-- <div style:width style:height style:aspect-ratio={ratio} use:makePeekable > -->
-<div class:showRarity style:aspect-ratio={ratio} use:makePeekable >
+<div class="print-asset" class:showRarity
+    style:aspect-ratio={ratio}
+    use:makePeekable
+>
     {#if data.type === "video" && data.sources && !grayOut}
         <video
             poster={data.url} {width} {height} autoplay loop {muted}
@@ -246,7 +249,7 @@
 </div>
 
 <style>
-    div {
+    .print-asset {
         position: relative;
         --icon-size: 26px;
     }

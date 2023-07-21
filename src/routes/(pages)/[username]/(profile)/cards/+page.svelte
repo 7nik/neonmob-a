@@ -9,10 +9,11 @@
     import MetaSeo from "$elem/MetaSeo.svelte";
     import PushSwitch from "$elem/PushSwitch.svelte";
     import Select from "$elem/Select.svelte";
+    import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
     import { viewPrint } from "$lib/overlays";
     import currentUser from "$lib/services/currentUser";
     import { RARITY } from "$lib/utils/config";
-    import { array2columns, infiniteScroll } from "$lib/utils/utils";
+    import { scaleHeight } from "$lib/utils/utils";
 
     export let data;
 
@@ -53,12 +54,6 @@
 
     let pageWidth = 1000; // thus it will SSR for wide screen
     let cards: Paginator<NM.OwnedCard> = new EndlessPaginator();
-    $: loading = cards.isLoadingStore;
-    $: columns = array2columns(
-        $cards,
-        pageWidth > 480 ? 4 : 2,
-        (card) => card.piece_assets.image.medium.height,
-    );
 
     let skip = true;
     $: if (skip) {
@@ -80,15 +75,12 @@
         );
     }
 
-    infiniteScroll(() => cards.loadMore());
-
     function viewCard (cardId: ID<"card">) {
         viewPrint({
             cardId,
             gallery: cards.items.map((c) => c.id),
         });
     }
-
 </script>
 
 <svelte:window bind:innerWidth={pageWidth}/>
@@ -128,18 +120,12 @@
     </Select>
 </section>
 
-<section class="cards">
-    {#each columns as column}
-        <div class="column">
-            {#each column as card (card.id)}
-                <CardTile {card} {viewCard} isPublic={!currentUser.isAuthenticated} />
-            {/each}
-        </div>
-    {/each}
-</section>
-{#if $loading}
-    <div class="loading"><Icon icon="loader"/></div>
-{/if}
+<TwoOrFourColumns items={cards}
+    itemHeight={(card) => scaleHeight(card.piece_assets.image.medium, 240)}
+    let:item
+>
+    <CardTile card={item} {viewCard} />
+</TwoOrFourColumns>
 
 
 <style>
@@ -212,26 +198,6 @@
         display: flex;
         justify-content: space-between;
     }
-
-    .cards {
-        padding: 20px 10px 0;
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-    }
-    .column {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .loading {
-        width: 100%;
-        padding: 60px;
-        text-align: center;
-        --icon-size: 40px;
-    }
     @media screen and (max-width: 767px) {
         .filters {
             flex-wrap: wrap;
@@ -239,9 +205,6 @@
         .filters .rarity-filters {
             flex-grow: 1;
             order: 1;
-        }
-        .cards, .column {
-            gap: 10px;
         }
     }
     @media screen and (max-width: 480px) {

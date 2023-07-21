@@ -4,14 +4,11 @@
 <script lang="ts" context="module">
     import type NM from "$lib/utils/NM Types";
 
-    // get the height for width scaled to 300
-    function scale ({ width, height }: { width: number, height: number }) {
-        return height * (300 / width);
-    }
+    import { scaleHeight } from "$lib/utils/utils";
 
     export function activityHeight (activity: NM.ActivityAny) {
         switch (activity.type) {
-            case "pack-opened": return scale(activity.rarest_piece) + 54;
+            case "pack-opened": return scaleHeight(activity.rarest_piece, 300) + 54;
             case "badge-earned": return activity.sett_id ? 369 : 330;
             case "sett-published": return 495;
             case "trade-completed": return 367;

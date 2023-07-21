@@ -271,3 +271,13 @@ export function getCookie (name: string) {
     if (valueAndTrash) return valueAndTrash.split(";", 2)[0];
     return null;
 }
+
+/**
+ * Scale item dimensions to the given width and returns width
+ * @param size - item dimensions to scale
+ * @param width - the target width
+ * @returns the scaled height
+ */
+export function scaleHeight ({ width, height }: { width: number, height: number }, w: number) {
+    return height * (w / width);
+}

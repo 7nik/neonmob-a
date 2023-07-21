@@ -5,20 +5,27 @@
     import type { ID } from "$lib/utils/NM Types";
 
     import { onMount } from "svelte";
-    import { getDisplayCards } from "$api";
+    import { StaticPaginator, getDisplayCards } from "$api";
     import Clickable from "$elem/Clickable.svelte";
     import Icon from "$elem/Icon.svelte";
     import PrintAsset from "$elem/PrintAsset.svelte";
+    import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
     import { viewPrint } from "$lib/overlays";
-    import { array2columns } from "$lib/utils/utils";
 
     export let userId: ID<"user">;
 
-    let folded = true;
-    let ready = false;
-    let pageWidth = 1000;
-    $: cols = pageWidth > 480 ? 4 : 2;
+    // let folded = true;
+    let height = 320;
+    function toggleHeight (ev: Event) {
+        if (height !== 320) {
+            height = 320;
+            return;
+        }
+        const target = (ev.currentTarget as Element).previousElementSibling!;
+        height = target.clientHeight;
+    }
 
+    let ready = false;
     $: promise = ready
         ? getDisplayCards(userId)
         : Promise.resolve([]);
@@ -33,59 +40,35 @@
     }
 </script>
 
-<svelte:window bind:innerWidth={pageWidth} />
-
-<section class="display-cards" class:folded>
-    <div class="cards">
-        {#await promise then cards}
-            {@const columns = array2columns(cards, cols, (c) => c.piece_assets.image.large.height)}
-            {#each columns as column}
-                <div class="column">
-                    {#each column as card}
-                        <Clickable on:click={() => viewCard(card.id)}>
-                            <PrintAsset
-                                card={{ ...card, name: "" }}
-                                size="large"
-                            />
-                        </Clickable>
-                    {/each}
-                </div>
-            {/each}
-        {/await}
-    </div>
-    <Clickable on:click={() => { folded = !folded; }}>
+<section class="display-cards" style:height="{height}px">
+    {#await promise then cards}
+        <TwoOrFourColumns items={new StaticPaginator(cards, 16)}
+            itemHeight={() => 1}
+            let:item
+        >
+            <Clickable on:click={() => viewCard(item.id)}>
+                <PrintAsset card={{ ...item, name: "" }} size="large" />
+            </Clickable>
+        </TwoOrFourColumns>
+    {/await}
+    <Clickable on:click={toggleHeight}>
         <div class="condenser">
-            <Icon icon={folded ? "reveal" : "conceal" } />
+            <Icon icon={height === 320 ? "reveal" : "conceal" } />
         </div>
     </Clickable>
 </section>
 
 <style>
     .display-cards {
-        height: 100%;
         position: relative;
         background: #1a1417;
         transition: height .3s linear;
-    }
-    .display-cards.folded {
-        height: 320px;
         overflow: hidden;
     }
-    .cards {
-        max-width: 960px;
+    .display-cards > :global(.items) {
         margin: 10px auto 20px;
-        padding: 0 10px;
-        display: flex;
-        gap: 20px;
     }
-    .column {
-        flex-basis: 0;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-    .column > :global(*>*) {
+    .display-cards :global(.print-asset) {
         border-radius: 4px;
         overflow: hidden;
         cursor: zoom-in;
@@ -106,9 +89,9 @@
     .display-cards:hover .condenser {
         --icon-color: white;
     }
-    @media screen and (max-width: 480px) {
-        .cards, .column {
-            gap: 10px;
+    @media screen and (hover: none) {
+        .condenser {
+            --icon-color: white;
         }
     }
 </style>

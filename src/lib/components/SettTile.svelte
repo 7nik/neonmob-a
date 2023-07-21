@@ -16,9 +16,11 @@
 
     export let sett: NM.Sett;
 
+    export let owner: Pick<NM.User, "username"> | null = null;
+
     // TODO allow set the target user and check if currentUser collects it
-    $: bodyLink = currentUser.isAuthenticated
-        ? `${sett.permalink}user/${currentUser.username}/cards/`
+    $: bodyLink = owner
+        ? `${sett.permalink}user/${owner.username}/cards/`
         : sett.permalink;
 </script>
 

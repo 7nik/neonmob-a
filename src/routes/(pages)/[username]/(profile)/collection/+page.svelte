@@ -86,7 +86,7 @@
 <section class="setts">
     {#if setts.total > 0}
         {#each $setts as sett (sett.id)}
-            <SettTile {sett} />
+            <SettTile {sett} owner={data.user} />
         {/each}
     {/if}
     {#if $loading}

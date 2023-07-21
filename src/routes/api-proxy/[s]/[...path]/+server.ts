@@ -20,15 +20,18 @@ const proxyRequest: ServerLoad = async ({ url, request, params: { s, path } }) =
     request.headers.set("accept-encoding", "identity");
 
     const resp = await fetch(link, request);
-    // if the response is still encoded
-    if (resp.headers.has("content-encoding")) {
+    // if the response is still encoded or getting cookies
+    if (resp.headers.has("content-encoding") || resp.headers.has("set-cookie")) {
         const body = await resp.text();
-        return new Response(body, {
-            headers: {
-                cookies: resp.headers.get("cookies")!,
-                "content-type": resp.headers.get("content-type")!,
-            },
+        const headers = new Headers({
+            "content-type": resp.headers.get("content-type")!,
         });
+        for (const [key, value] of resp.headers.entries()) {
+            if (key === "set-cookie") {
+                headers.append(key, value.replace(" Domain=.neonmob.com;", ""));
+            }
+        }
+        return new Response(body, { headers });
     }
     return resp;
 };

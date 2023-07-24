@@ -7,6 +7,7 @@
 
     import Clickable from "$elem/Clickable.svelte";
     import Icon from "$elem/Icon.svelte";
+    import ratio from "$lib/actions/ratio";
     import { viewPrint } from "$lib/overlays";
 
     /**
@@ -45,9 +46,7 @@
 
 <div>
     <Clickable on:click={() => viewCard(rarestCard)}>
-        <figure style:aspect-ratio={rarestCard.large_image
-            ? rarestCard.large_image.width / rarestCard.large_image.height
-            : 0}
+        <figure use:ratio={rarestCard.large_image}
         >
             {#if rarestCard.large_video}
                 <video poster={rarestCard.large_image?.url} loop muted autoplay>

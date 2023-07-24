@@ -5,6 +5,7 @@
     import type { ID } from "$lib/utils/NM Types";
     import type NM from "$lib/utils/NM Types";
 
+    import { page } from "$app/stores";
     import Button from "$elem/Button.svelte";
     import Icon from "$elem/Icon.svelte";
     import { fail } from "$lib/dialogs";
@@ -35,7 +36,7 @@
 
 <div class="card"
     class:empty={ownedCount === 0 && !isPublic}
-    style:aspect-ratio={width / height}
+    use:ratio={card.piece_assets.image.medium}
     tabindex="-1"
     on:click={view}
     on:keypress={onEnter(view)}

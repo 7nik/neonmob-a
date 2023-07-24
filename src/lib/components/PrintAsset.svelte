@@ -58,8 +58,8 @@
      */
     function getDimensionSize (
         data: { width: number, height: number },
-        maxWidth = 0,
-        maxHeight = 0,
+        maxWidth: number,
+        maxHeight: number,
     ) {
         const ratio = data.width / data.height;
         let height;
@@ -87,11 +87,7 @@
         width = Math.min(width, data.width);
         height = Math.min(height, data.height);
 
-        return {
-            width: `${width}px`,
-            height: `${height}px`,
-            ratio: width / height,
-        };
+        return { width, height };
     }
 
     /**
@@ -126,6 +122,7 @@
 
     import { readable } from "svelte/store";
     import Icon from "$elem/Icon.svelte";
+    import ratio from "$lib/actions/ratio";
     import tip from "$lib/actions/tip";
     import config from "$lib/utils/config";
 
@@ -183,7 +180,7 @@
 
     const data = getCardData(card, size);
     // eslint-disable-next-line prefer-const
-    let { width, height, ratio } = getDimensionSize(data, maxWidth, maxHeight);
+    let { width, height } = getDimensionSize(data, maxWidth, maxHeight);
     // if (!setSize) {
     //     width = "";
     //     height = "";
@@ -212,12 +209,12 @@
 
 <!-- <div style:width style:height style:aspect-ratio={ratio} use:makePeekable > -->
 <div class="print-asset" class:showRarity
-    style:aspect-ratio={ratio}
+    use:ratio={{ width, height }}
     use:makePeekable
 >
     {#if data.type === "video" && data.sources && !grayOut}
         <video
-            poster={data.url} {width} {height} autoplay loop {muted}
+            poster={data.url} width="{width}px" height="{height}px" autoplay loop {muted}
             on:click={(ev) => ev.currentTarget.play()}
             use:stopHiddenVideo
         >

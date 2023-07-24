@@ -4,6 +4,7 @@
 <script lang="ts">
     import type NM from "$lib/utils/NM Types";
     import Icon from "$elem/Icon.svelte";
+    import ratio from "$lib/actions/ratio";
     import { plural } from "$lib/utils/format";
     import ActivityBase from "./ActivityBase.svelte";
 
@@ -14,7 +15,7 @@
 <ActivityBase {activity} actionText="Opened packs" user1={activity.user}
     shareText="I'm killing it on @NeonMob today!"
 >
-    <figure style:aspect-ratio={activity.rarest_piece.width / activity.rarest_piece.height}>
+    <figure use:ratio={activity.rarest_piece}>
         <img src={activity.rarest_piece.owned_image_url} alt="Card {activity.rarest_piece.name}"/>
         <figcaption>
             <Icon icon={activity.rarest_piece.rarity} upper />

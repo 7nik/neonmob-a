@@ -37,7 +37,7 @@
     onMount(() => {
         // display and animate level progress on the avatar
         const scale = 0.92; // compensate space taken by the level icon
-        const center = 54;
+        const center = 108; // twice bigger and then scale down by CSS to make it smooth
         canvas.width = center * 2;
         canvas.height = center * 2;
         const ctx = canvas.getContext("2d")!;
@@ -50,8 +50,8 @@
             ctx,
             cx: center,
             cy: center,
-            r: center - 4,
-            thickness: 4,
+            r: center - 8,
+            thickness: 8,
             endValue: u.level.current_progress / 100 * scale,
             bgColor: "#e1e1e1",
             startColor: u.level.icon_color,
@@ -220,8 +220,9 @@
     }
     .avatar canvas {
         position: absolute;
-        top: -4px;
-        left: -4px;
+        top: -58px;
+        left: -58px;
+        scale: 0.5;
     }
     .main {
         flex-grow: 1;

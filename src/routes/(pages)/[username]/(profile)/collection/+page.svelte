@@ -4,10 +4,11 @@
     import PushSwitch from "$elem/PushSwitch.svelte";
     import Select from "$elem/Select.svelte";
     import SettTile from "$elem/SettTile.svelte";
-    import currentUser from "$lib/services/currentUser";
     import { infiniteScroll } from "$lib/utils/utils";
 
     export let data;
+
+    const { isCurrentUser } = data.currentUser;
 
     const sortOptions = [{
         name: "Recently Collected",
@@ -69,7 +70,7 @@
 
 <section class="filters">
     <span class="label">FILTERS:</span>
-    {#if $currentUser.is(data.user)}
+    {#if isCurrentUser(data.user)}
         <PushSwitch
             bind:value={favorite}
             icons={["like", "liked"]}

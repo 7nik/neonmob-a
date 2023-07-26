@@ -7,13 +7,14 @@
     import Select from "$elem/Select.svelte";
     import SettTile from "$elem/SettTile.svelte";
     import cache from "$lib/actions/cache";
-    import currentUser from "$lib/services/currentUser";
     import { infiniteScroll } from "$lib/utils/utils";
     import Seo from "../Seo.svelte";
 
     export let data;
 
+    const { isAuthenticated } = data.currentUser;
     const { categories, p } = data;
+
     let selectedCategory = categories.find((c) => c.name_slug === $page.params.slug);
     $: if (selectedCategory && $page.url.pathname !== selectedCategory?.collect_url) {
         goto(selectedCategory.collect_url);
@@ -37,7 +38,8 @@
     let freebieSett = false;
     let creditSett = false;
 
-    const sortOptions = currentUser.areFeaturesGated
+    // const sortOptions = currentUser.areFeaturesGated
+    $: sortOptions = $isAuthenticated
         ? [{
             name: "Date of Release: New to Old",
             key: "release_date",
@@ -84,18 +86,22 @@
             key: "difficulty",
             desc: false,
         }, {
+            name: "% Series Completion",
+            key: "percent_owned",
+            desc: true,
+        }, {
             name: "% Sold Out",
             key: "percent_sold",
             desc: true,
         }];
-    if (currentUser.isAuthenticated && !currentUser.areFeaturesGated) {
-        // made this reactive?
-        sortOptions.splice(3, 0, {
-            name: "% Series Completion",
-            key: "percent_owned",
-            desc: true,
-        });
-    }
+    // if (isAuthenticated()) {
+    //     // made this reactive?
+    //     sortOptions.splice(3, 0, {
+    //         name: "% Series Completion",
+    //         key: "percent_owned",
+    //         desc: true,
+    //     });
+    // }
     let sortOption = sortOptions.find((so) => so.key === "release_date") ?? sortOptions[0];
 
     infiniteScroll(() => setts.loadMore());
@@ -136,13 +142,13 @@
     <div></div>
 </header>
 <article>
-    <section class="filters" class:anon={!$currentUser.isAuthenticated}>
+    <section class="filters" class:anon={!$isAuthenticated}>
         <span class="filters1">
             <Select list={categories} bind:value={selectedCategory} let:item>
                 <a href="{item?.collect_url}" class="item">{item?.name ?? "Select Category"}</a>
                 <span class="label" slot="selected">{item?.name ?? "Select Category"}</span>
             </Select>
-            {#if $currentUser.isAuthenticated}
+            {#if $isAuthenticated}
                 <PushSwitch
                     icons={["like", "liked"]}
                     bind:value={favorite}
@@ -157,7 +163,7 @@
             >
                 <span class="hide-on-small">{["All", "Limited", "Unlimited"][settType]}</span>
             </PushSwitch>
-            {#if $currentUser.isAuthenticated}
+            {#if $isAuthenticated}
                 <PushSwitch
                     icons={["owned", "owned", "unowned"]}
                     bind:value={owned}

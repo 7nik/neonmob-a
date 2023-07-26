@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { browser } from "$app/environment";
     import { page } from "$app/stores";
     import Avatar from "$elem/Avatar.svelte";
     import Button from "$elem/Button.svelte";
@@ -9,7 +9,6 @@
     import tip from "$lib/actions/tip";
     import { viewBio } from "$lib/dialogs";
     import { resolve } from "$lib/services/cache";
-    import currentUser from "$lib/services/currentUser";
     import { linky } from "$lib/utils/format";
     import DisplayCase from "./DisplayCase.svelte";
     import drawProgressCircle from "./drawProgressCircle";
@@ -17,6 +16,9 @@
     const creatorTip = "I'm a NeonMob Creator! Visit my Creator profile to collect my series.";
 
     export let data;
+
+    const { isAuthenticated, isCurrentUser } = data.currentUser;
+
     $: u = data.user;
     $: resolve.user.set(u.username, u.id);
 
@@ -34,7 +36,7 @@
     }
 
     let canvas: HTMLCanvasElement;
-    onMount(() => {
+    $: if (canvas && browser) {
         // display and animate level progress on the avatar
         const scale = 0.92; // compensate space taken by the level icon
         const center = 108; // twice bigger and then scale down by CSS to make it smooth
@@ -57,7 +59,7 @@
             startColor: u.level.icon_color,
             endColor: u.level.gradient_color,
         });
-    });
+    }
 
     let milestonesCount: number|"?";
     let favoritesCount: number|"?";
@@ -92,7 +94,7 @@
                     <Icon icon="pro" upper hint="Pro Collector" />
                 {/if}
                 {u.name}
-                {#if u.has_released_sett || currentUser.is(u) && u.is_creator}
+                {#if u.has_released_sett || $isCurrentUser(u) && u.is_creator}
                     <a href="/creator/{u.username}" use:tip={creatorTip}>
                         <Icon icon="creator-colored"/>
                         Creator Profile
@@ -125,7 +127,7 @@
                             <span class="show-full">Expand Full Bio</span>
                         </Clickable>
                     {/if}
-                    {#if currentUser.is(u)}
+                    {#if $isCurrentUser(u)}
                         <Button type="borderless" icon="edit" on:click={() => viewBio(u, true)}>
                             <span class="edit-bio">Edit Bio</span>
                         </Button>
@@ -133,7 +135,7 @@
                 </div>
             </div>
             <div class="actions">
-                {#if currentUser.isAuthenticated && !currentUser.is(u)}
+                {#if $isAuthenticated && !$isCurrentUser(u)}
                     <!-- disable all if is blocked -->
                     <Button icon="chat" type="subdued-dark" size="nano"
                         hint="Send a Message"

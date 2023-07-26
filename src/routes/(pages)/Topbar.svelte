@@ -3,33 +3,31 @@
  -->
 <script lang="ts">
     import { afterNavigate } from "$app/navigation";
+    import { page } from "$app/stores";
     import Avatar from "$elem/Avatar.svelte";
     import Button from "$elem/Button.svelte";
     import Clickable from "$elem/Clickable.svelte";
     import Icon from "$elem/Icon.svelte";
-    import { fail } from "$lib/dialogs";
-    import currentUser from "$lib/services/currentUser";
-    // import SidebarHead from "./SidebarHead.svelte";
+    import { fail, login } from "$lib/dialogs";
     import UserStuff from "./UserStuff.svelte";
 
-    let anon = !$currentUser.isAuthenticated;
-    $: anon = !$currentUser.isAuthenticated;
+    const { isAuthenticated, resetUser, user } = $page.data.currentUser;
 
     afterNavigate(() => {
         (document.getElementById("show-menu") as HTMLInputElement).checked = false;
     });
 </script>
 
-<nav class:anon>
-    {#if !anon}
-        <label for="show-menu" class="menu no-desk">
+<nav class:anon={!$isAuthenticated}>
+    {#if $isAuthenticated}
+        <label for="show-menu" class="menu hide-wide">
             <Icon icon="burger" />
         </label>
     {/if}
     <a href="/" class="logo">
         <img src="/img/logo_heart_diamond_flat.png" alt="logo" />
         <!-- Gradient NEONMOB word -->
-        <svg class:always-show={anon} class="no-desk no-tiny" viewBox="0 0 91.1 12">
+        <svg class:always-show={!$isAuthenticated} class="hide-wide hide-tiny" viewBox="0 0 91 12">
             <!-- eslint-disable-next-line max-len -->
             <linearGradient id="a" x1="2.3" x2="97" y1="-.8" y2="15.2" gradientUnits="userSpaceOnUse">
                 <stop offset="0" stop-color="#8BC7E1"></stop>
@@ -43,7 +41,7 @@
     <input type="checkbox" id="show-menu" hidden />
     <label for="show-menu" class="menu-overlay"></label>
     <menu>
-        {#if !anon}
+        {#if $isAuthenticated}
             <form action="/search/">
                 <input type="search" id="global-search"
                     name="search"
@@ -55,18 +53,18 @@
             </form>
         {/if}
         <label for="show-menu">
-            {#if !anon}
+            {#if $isAuthenticated}
                 <a href="/">Dashboard</a>
-                <a href="/{$currentUser.username}/collection">Your Collection</a>
+                <a href="/{user.username}/collection">Your Collection</a>
             {/if}
             <a href="/collect/">Collect</a>
             <a href="/vote/newest">Vote</a>
             <a href="/create">Create</a>
-            {#if !anon}
+            {#if $isAuthenticated}
                 <label for="global-search" class="show-form"><Icon icon="search"/></label>
-                <span class="avatar">
-                    <Avatar user={$currentUser.you} size="small" />
-                </span>
+                <a href="/{user.username}" class="avatar">
+                    <Avatar {user} size="small" />
+                </a>
                 <div class="account-menu">
                     <hr>
                     <a href="/account/">Account Settings</a>
@@ -76,7 +74,7 @@
                     <a href="https://help.neonmob.com">Help Center</a>
                     <a href="https://forum.neonmob.com/">Forums</a>
                     <Clickable on:click={fail}><span>Buy credits</span></Clickable>
-                    <a href="/signout/">Log Out</a>
+                    <a href="/signout/" on:click|preventDefault={resetUser}>Log Out</a>
                     <hr>
                 </div>
             {/if}
@@ -84,18 +82,18 @@
     </menu>
 
     <div class="right">
-        {#if anon}
+        {#if !$isAuthenticated}
             <!-- TODO: update links to point to own pages -->
-            <a href="https://www.neonmob.com/signup" class="no-mob">
+            <a href="https://www.neonmob.com/signup" class="hide-small">
                 <Button type="subdued-light">start a collection</Button>
             </a>
-            <!-- <a href="https://www.neonmob.com/login" on:click={(ev) => {
-                ev.currentTarget.href = "https://www.neonmob.com/login?next="
-                    .concat(encodeURIComponent(window.location.href));
-            }}> -->
-            <span>
-                <Button type="subdued-light" on:click={fail}>log in</Button>
-            </span>
+            <a href="/login?next={encodeURIComponent($page.url.pathname)}"
+                on:click|preventDefault={login}
+                data-sveltekit-preload-data="off"
+                data-sveltekit-preload-code="hover"
+            >
+                <Button type="subdued-light">log in</Button>
+            </a>
         {:else}
             <UserStuff/>
         {/if}
@@ -217,7 +215,7 @@
     }
 
     @media (min-width: 951px) {
-        .no-desk:not(.always-show) {
+        .hide-wide:not(.always-show) {
             display: none;
         }
         .menu-overlay {
@@ -255,7 +253,7 @@
             padding: 0 10px;
             --icon-size: 18px;
         }
-        menu > label > a:hover, .show-form:hover {
+        menu > label > a:hover, .show-form:hover, a.avatar {
             opacity: 1;
         }
         .account-menu a, .account-menu span {
@@ -271,7 +269,7 @@
         }
     }
     @media (max-width: 950px) {
-        .no-mob {
+        .hide-small {
             display: none;
         }
         .menu + .logo {
@@ -357,7 +355,7 @@
         }
     }
     @media (max-width: 400px) {
-        .no-tiny:not(.always-show) {
+        .hide-tiny:not(.always-show) {
             display: none;
         }
         .menu + .logo {

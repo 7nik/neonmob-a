@@ -4,9 +4,9 @@
  <script lang="ts">
     import type NM from "$lib/utils/NM Types";
 
+    import { page } from "$app/stores";
     import Button from "$elem/Button.svelte";
     import Icon from "$elem/Icon.svelte";
-    import currentUser from "$lib/services/currentUser";
     import { firstNamePossessive } from "$lib/services/user";
     import DialogWindow from "./DialogWindow.svelte";
 
@@ -16,6 +16,8 @@
      * Start in editing mode, default - no
      */
     export let editing = false;
+
+    const { isCurrentUser } = $page.data.currentUser;
 
     const bioLimit = 1200;
     const warnLimit = bioLimit - 100;
@@ -80,7 +82,7 @@
                 {bio.length}/{bioLimit}
             </small>
         {/if}
-        {#if currentUser.is(user)}
+        {#if $isCurrentUser(user)}
             <div class="buttons">
                 {#if editing}
                     <Button type="subdued-dark" on:click={close}>Cancel</Button>

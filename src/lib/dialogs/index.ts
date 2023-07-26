@@ -8,6 +8,7 @@ import type {
 
 import CaratBalance from "./CaratBalance.svelte";
 import FullBio from "./FullBio.svelte";
+import Login from "./Login.svelte";
 import Message from "./Message.svelte";
 import SettCompletionPopover from "./SettCompletionPopover.svelte";
 import SharePopover from "./SharePopover.svelte";
@@ -99,6 +100,10 @@ export function fail (ev: Event | null = null) {
     alert("Impossiburu", "This isn't implemented yet :`(");
 }
 
+export function login () {
+    return createDialog(Login, {});
+}
+
 /**
  * Creates a popover window
  * @param Component - component constructor of the popover
@@ -146,7 +151,7 @@ function createPopover<
 export function showSettCompletion (
     target: Element | Event,
     sett: NM.Sett,
-    owner: Pick<NM.User, "id"|"first_name">,
+    owner: NM.UserMinimal,
 ) {
     createPopover(target, SettCompletionPopover, { sett, owner });
 }

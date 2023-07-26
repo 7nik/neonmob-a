@@ -4,19 +4,21 @@
 <script lang="ts">
     import type NM from "$lib/utils/NM Types";
 
+    import { page } from "$app/stores";
     import Button from "$elem/Button.svelte";
     import Icon from "$elem/Icon.svelte";
     import SettCover from "$elem/SettCoverWithBanner.svelte";
     import cache from "$lib/actions/cache";
     import resolve from "$lib/actions/resolve";
     import { fail } from "$lib/dialogs";
-    import currentUser from "$lib/services/currentUser";
     import CollectButton from "./CollectButton.svelte";
     import SettCompletion from "./SettCompletion.svelte";
 
     export let sett: NM.Sett;
 
     export let owner: Pick<NM.User, "username"> | null = null;
+
+    const { isAuthenticated } = $page.data.currentUser;
 
     // TODO allow set the target user and check if currentUser collects it
     $: bodyLink = owner
@@ -36,14 +38,14 @@
             <a href={sett.permalink}>{sett.name}</a>
             <a href="/creator/{sett.creator.username}">{sett.creator.name}</a>
         </div>
-        {#if $currentUser.isAuthenticated}
+        {#if $isAuthenticated}
             <SettCompletion {sett} darkTheme />
         {/if}
     </header>
     <a class="body" href={bodyLink}>
         <SettCover {sett} />
         <div>
-            {#if $currentUser.isAuthenticated}
+            {#if $isAuthenticated}
                 <span>
                     <Button type="subdued-light" icon="like" on:click={fail}>Favorite</Button>
                 </span>

@@ -6,17 +6,17 @@
 
     import Icon from "$elem/Icon.svelte";
     import SettCompletionGraph from "$elem/SettCompletionGraph.svelte";
-    import currentUser from "$lib/services/currentUser";
+    import { firstNamePossessive } from "$lib/services/user";
     import PopoverWindow from "./PopoverWindow.svelte";
 
     export let element: Element;
     export let sett: NM.Sett;
-    export let owner: Pick<NM.User, "id"|"first_name">;
+    export let owner: NM.UserMinimal;
 </script>
 
 <PopoverWindow {element} on:closed>
     <h3>
-        { $currentUser.id === owner.id ? "Your" : `${owner.first_name}'s'` }
+        {firstNamePossessive(owner)}
         "{sett.name}"
         Progress
     </h3>

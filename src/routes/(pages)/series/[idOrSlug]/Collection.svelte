@@ -5,12 +5,12 @@
     import type { ID, rarityCss } from "$lib/utils/NM Types";
     import type NM from "$lib/utils/NM Types";
 
+    import { page } from "$app/stores";
     import { EndlessPaginator, StaticPaginator } from "$api";
     import CardTile from "$elem/CardTile.svelte";
     import Filters, { type FiltersSchema } from "$elem/Filters.svelte";
     import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
     import { viewPrint } from "$lib/overlays";
-    import currentUser from "$lib/services/currentUser";
     import { capitalize } from "$lib/utils/format";
     import { scaleHeight } from "$lib/utils/utils";
 
@@ -27,6 +27,8 @@
      */
     export let isPublic = false;
 
+    const { isAuthenticated } = $page.data.currentUser;
+
     const rarities: {
         key: string,
         hint: string,
@@ -41,7 +43,7 @@
         icons: stat.class_name,
     }));
     const userFilers: FiltersSchema["buttons"] = [];
-    if (currentUser.isAuthenticated) {
+    if (isAuthenticated()) {
         userFilers.push({
             key: "favorite",
             hint: "Favorites",
@@ -102,7 +104,7 @@
         : new EndlessPaginator<NM.Card>();
 
     function viewCard (cardId: ID<"card">) {
-        const ownedCards = isPublic || !currentUser.isAuthenticated
+        const ownedCards = isPublic || !isAuthenticated()
             ? filteredCards
             : filteredCards.filter((c) => c.own_count);
         viewPrint({

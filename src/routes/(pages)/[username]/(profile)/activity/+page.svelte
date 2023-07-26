@@ -8,12 +8,13 @@
     import Activities from "$elem/Activities.svelte";
     import Clickable from "$elem/Clickable.svelte";
     import SectionHeader from "$elem/SectionHeader.svelte";
-    import currentUser from "$lib/services/currentUser";
     import OwnedCollections from "$lib/services/OwnedCollections";
 
     export let data;
 
-    const ownProfile = currentUser.is(data.user);
+    const { isCurrentUser } = data.currentUser;
+
+    const ownProfile = isCurrentUser(data.user);
     let paginator: Paginator<NM.ActivityAny> | null;
 
     let source: NM.SettMetrics|null = null;

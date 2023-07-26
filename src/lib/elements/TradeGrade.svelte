@@ -25,15 +25,17 @@
 <script lang="ts">
     import type NM from "$lib/utils/NM Types";
 
+    import { page } from "$app/stores";
     import tip from "$lib/actions/tip";
-    import currentUser from "$lib/services/currentUser";
     import { firstNamePossessive } from "$lib/services/user";
 
     export let user: NM.User;
 
+    const { isCurrentUser } = $page.data.currentUser;
+
     const grade = Math.floor(user.trader_score);
     if (grade < 0 || grade > 13) console.error("Bad grade", user.trader_score);
-    const yourself = user.id === currentUser.id;
+    const yourself = isCurrentUser(user);
     const name = yourself ? "Your" : firstNamePossessive(user);
     const hint = `${name} trader grade is: ${getLetterGrade(grade)}. ${yourself ? EXTRA : ""}`;
 </script>

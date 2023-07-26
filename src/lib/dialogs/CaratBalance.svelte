@@ -2,11 +2,13 @@
     A dialog window to view current user's carats
  -->
 <script lang="ts">
+    import { page } from "$app/stores";
     import Button from "$elem/Button.svelte";
     import Icon from "$elem/Icon.svelte";
-    import currentUser from "$lib/services/currentUser";
     import { comma } from "$lib/utils/format";
     import DialogWindow from "./DialogWindow.svelte";
+
+    const { carats } = $page.data.currentUser;
 
     let close: () => void;
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
@@ -19,7 +21,7 @@
             <div class="balance">
                 <Icon icon="carat"/>
                 <h6>Carats Balance</h6>
-                <span>{comma($currentUser.carats)} carats</span>
+                <span>{comma(carats)} carats</span>
             </div>
             <p>
                 Earn carats by completing series, reaching milestones, and discarding cards.

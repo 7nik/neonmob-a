@@ -1,5 +1,7 @@
-import currentUser from "$lib/services/currentUser";
+import { lazyCurrentUser } from "$lib/services/CurrentUser";
 import { fullUrl } from "./utils";
+
+const currentUser = lazyCurrentUser();
 
 const REFERRAL_PARAMS = {
     CODE: "rc",
@@ -11,7 +13,7 @@ function createShareUrl (link: string, source: string, channel: string) {
     const url = new URL(fullUrl(link));
     if (channel) url.searchParams.set(REFERRAL_PARAMS.CHANNEL, channel);
     if (source) url.searchParams.set(REFERRAL_PARAMS.SOURCE, source);
-    if (currentUser.isAuthenticated && !link.includes(currentUser.referralUrl)) {
+    if (currentUser.isAuthenticated() && !link.includes(currentUser.referralUrl)) {
         url.searchParams.set(REFERRAL_PARAMS.CODE, currentUser.referralCode);
     }
     return url.toString();

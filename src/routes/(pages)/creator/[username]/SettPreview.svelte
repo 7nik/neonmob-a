@@ -4,13 +4,15 @@
 <script lang="ts">
     import type NM from "$lib/utils/NM Types";
 
+    import { page } from "$app/stores";
     import CollectButton from "$elem/CollectButton.svelte";
     import SettCompletion from "$elem/SettCompletion.svelte";
     import SettPreviews from "$elem/SettPreviews.svelte";
     import cache from "$lib/actions/cache";
-    import currentUser from "$lib/services/currentUser";
 
     export let sett: NM.Sett;
+
+    const { isAuthenticated } = $page.data.currentUser;
 </script>
 
 <svelte:options immutable />
@@ -19,7 +21,7 @@
     style:background-image="url('{sett.sett_assets["large-blur"].url}')"
 >
     <span class="graph">
-        {#if $currentUser.isAuthenticated}
+        {#if $isAuthenticated}
             <SettCompletion {sett} />
         {/if}
     </span>

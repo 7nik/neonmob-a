@@ -4,6 +4,7 @@
 <script lang="ts">
     import type NM from "$lib/utils/NM Types";
 
+    import { page } from "$app/stores";
     import Avatar from "$elem/Avatar.svelte";
     import Banner from "$elem/Banner.svelte";
     import Button from "$elem/Button.svelte";
@@ -12,9 +13,9 @@
     import cache from "$lib/actions/cache";
     import { fail, showShare } from "$lib/dialogs";
     import { resolve } from "$lib/services/cache";
-    import currentUser from "$lib/services/currentUser";
     import { timeAgo } from "$lib/utils/date";
     import { plural } from "$lib/utils/format";
+    import { absUrl } from "$lib/utils/utils";
 
     export let submission: NM.Submission;
     /**
@@ -26,7 +27,9 @@
      */
     export let showComment = false;
 
-    const url = submission.detail_url.replace("https://www.neonmob.com", "");
+    const { isAuthenticated, isVerified } = $page.data.currentUser;
+
+    const url = absUrl(submission.detail_url);
     /* eslint-disable no-unused-vars */
     enum Status {
         Submitted,
@@ -49,7 +52,7 @@
 
     function toggleLike () {
         // TODO implement
-        submission.likes.liked = !submission.likes.liked;
+        // submission.likes.liked = !submission.likes.liked;
         fail();
     }
 
@@ -84,7 +87,7 @@
         <Banner {bannerText} {bannerColor} />
     </a>
     <div class="reactions">
-        {#if $currentUser.isAuthenticated && $currentUser.isVerified}
+        {#if $isAuthenticated && isVerified()}
             <Clickable on:click={toggleLike}>
                 <span>
                     <Icon icon={submission.likes.liked ? "liked" : "like"} upper />

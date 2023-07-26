@@ -2,11 +2,12 @@
     The sidebar tab icons and user currencies
  -->
 <script lang="ts">
+    import { onDestroy } from "svelte";
+    import { page } from "$app/stores";
     import FlagCounter from "$elem/FlagCounter.svelte";
     import Icon from "$elem/Icon.svelte";
     import tip from "$lib/actions/tip";
-    import { viewCaratBalance } from "$lib/dialogs";
-    import user from "$lib/services/currentUser";
+    import { fail, viewCaratBalance } from "$lib/dialogs";
     import { plural } from "$lib/utils/format";
 
     // TODO implement retrieving the following data
@@ -16,16 +17,22 @@
     const messageCount = 0;
     const notificationCount = 0;
 
-    const { freebies, freebieLimit } = $user;
-    let carats: number;
-    let credits: number;
-    $: ({ carats, credits } = $user);
-
-    // TODO next freebie timer
+    const {
+        carats,
+        credits,
+        freebies,
+        timeToNextFreebie,
+    } = $page.data.currentUser;
+    let timer: NodeJS.Timer;
 
     function buyCredits () {
         // TODO implement?
+        fail();
     }
+
+    onDestroy(() => {
+        clearInterval(timer);
+    });
 </script>
 
 <input type="checkbox" id="fold-user-stuff" checked hidden />
@@ -56,13 +63,13 @@
 </div>
 <div class="user-stuff">
     <section class="freebie">
-        {#if freebies >= freebieLimit}
-            <div use:tip={"Free pack limit is reached!"}>full</div>
+        {#if $timeToNextFreebie}
+            <div use:tip={"Until next free pack"}>{$timeToNextFreebie}</div>
         {:else}
-            <div use:tip={"Until next free pack"}>17:45</div>
+            <div use:tip={"Free pack limit is reached!"}>full</div>
         {/if}
         <span>
-            {freebies ? "No packs left" : `${freebies} free ${plural(freebies, "pack")}`}
+            {$freebies ? `${$freebies} free ${plural($freebies, "pack")}` : "No packs left"}
         </span>
     </section>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -70,13 +77,13 @@
             "Your total carats! Click to find out how to earn carats and how they are used."
         } on:click={viewCaratBalance}
     >
-        <div>{carats < 1000 ? carats : `${Math.round(carats / 1000)}K`}</div>
+        <div>{$carats < 1000 ? $carats : `${Math.round($carats / 1000)}K`}</div>
         <span>carats</span>
     </section>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <section class="credits" on:click={buyCredits}>
         <div class="hover">buy</div>
-        <div>{credits < 1000 ? credits : `${Math.round(credits / 1000)}K`}</div>
+        <div>{$credits < 1000 ? $credits : `${Math.round($credits / 1000)}K`}</div>
         <span>credits</span>
     </section>
     <label for="fold-user-stuff" class="btn-unfold">
@@ -125,7 +132,7 @@
         line-height: .9;
     }
     .freebie {
-        margin-right: 3px;
+        margin-right: 6px;
         width: 70px;
     }
     .carats {
@@ -134,7 +141,7 @@
         border-right: 1px solid #45363d;
     }
     .credits {
-        padding-left: 3px;
+        padding-left: 6px;
     }
     section div {
         color: white;

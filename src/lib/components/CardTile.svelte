@@ -8,8 +8,8 @@
     import { page } from "$app/stores";
     import Button from "$elem/Button.svelte";
     import Icon from "$elem/Icon.svelte";
+    import ratio from "$lib/actions/ratio";
     import { fail } from "$lib/dialogs";
-    import currentUser from "$lib/services/currentUser";
     import { onEnter } from "$lib/utils/utils";
     import PrintAsset from "./PrintAsset.svelte";
 
@@ -24,7 +24,8 @@
      */
     export let isPublic = false;
 
-    const { width, height } = card.piece_assets.image.medium;
+    const { isAuthenticated } = $page.data.currentUser;
+
     const ownedCount = card.own_count;
 
     function view () {
@@ -51,30 +52,30 @@
     {:else if card.version === /* new limited */ 3 }
         <span class="edition"><Icon icon="LE" hint="Limited Edition"/></span>
     {/if}
-    <div class="info" class:no-shadow={!$currentUser.isAuthenticated}>
+    <div class="info" class:no-shadow={!$isAuthenticated}>
         <Icon icon={card.rarity.class} />
         <span class="name">{card.name}</span>
         {#if ownedCount > 1}
             <span class="dups">{ownedCount}×</span>
         {/if}
     </div>
-    {#if $currentUser.isAuthenticated}
+    {#if $isAuthenticated}
         <div class="actions">
             <!-- FIXME replace card.own_count with checking against real owner? -->
-            {#if $currentUser.canDo("trade")}
+            <!-- {#if $currentUser.canDo("trade")} -->
                 <Button icon="trade" type="subdued-light"
                     hint={ownedCount
                         ? "Trade with a collector seeking this card"
                         : "Trade with an owner of this card"
                     }
                     on:click={(ev) => { ev.stopPropagation(); fail(); }}/>
-            {/if}
+            <!-- {/if} -->
             {#if ownedCount}
                 <Button icon="discard" type="subdued-light"
                     hint="Discard for {card.rarity.carats} carats"
                     on:click={(ev) => { ev.stopPropagation(); fail(); }}/>
             {/if}
-            {#if $currentUser.canDo("favorite")}
+            <!-- {#if $currentUser.canDo("favorite")} -->
                 <Button icon={ownedCount
                     ? (card.favorite ? "liked" : "like")
                     : (card.favorite ? "wishlisted" : "wishlist")
@@ -82,7 +83,7 @@
                     type="subdued-light"
                     hint="{ownedCount ? "Favorite" : "Wishlist"}"
                     on:click={(ev) => { ev.stopPropagation(); fail(); }}/>
-            {/if}
+            <!-- {/if} -->
         </div>
     {/if}
 </div>

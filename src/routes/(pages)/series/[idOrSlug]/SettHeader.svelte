@@ -5,6 +5,7 @@
     import type NM from "$lib/utils/NM Types";
 
     import dayjs from "dayjs";
+    import { page } from "$app/stores";
     import Avatar from "$elem/Avatar.svelte";
     import Clickable from "$elem/Clickable.svelte";
     import CollectButton from "$elem/CollectButton.svelte";
@@ -14,11 +15,13 @@
     import cache from "$lib/actions/cache";
     import resolve from "$lib/actions/resolve";
     import { fail } from "$lib/dialogs";
-    import currentUser from "$lib/services/currentUser";
     import SettInfo from "$lib/utils/SettInfo";
     import share from "$lib/utils/share";
 
     export let sett: NM.Sett;
+
+    const { isAuthenticated, user } = $page.data.currentUser;
+
     $: settInfo = new SettInfo(sett);
 
     function shareOn (channel: "facebook" | "twitter") {
@@ -31,9 +34,9 @@
 </script>
 
 <h1>
-    {#if $currentUser.isAuthenticated}
+    {#if $isAuthenticated}
         <div class="actions">
-            <a href="{$currentUser.you.link}/colection/">
+            <a href="{user.link}/colection/">
                 <Icon icon="backToCollection" />
                 <span class="hide-on-small">Your</span> Collection
             </a>
@@ -66,7 +69,7 @@
         <Icon icon={sett.difficulty.class_name} />
         <div class="hide-on-tiny">{sett.difficulty.name}</div>
     </span>
-    {#if $currentUser.isAuthenticated}
+    {#if $isAuthenticated}
         <span>
             <SettCompletion {sett} />
         </span>
@@ -78,14 +81,14 @@
             {dayjs(sett.released).format("MMM D, YYYY")}
 
             {#if settInfo.isUnlimited && !settInfo.isSoldOut
-                || $currentUser.isAuthenticated && settInfo.isSoldOut
+                || $isAuthenticated && settInfo.isSoldOut
             }
                 <div>
                     Out of Print on
                     {dayjs(sett.discontinue_date).format("MMM D, YYYY")}
                 </div>
             {/if}
-            {#if settInfo.isLimited && $currentUser.isAuthenticated}
+            {#if settInfo.isLimited && $isAuthenticated}
                 {#if sett.freebies_discontinued}
                     <div>Free Packs All Claimed</div>
                 {:else if !settInfo.areFreebiesAvailableNow}

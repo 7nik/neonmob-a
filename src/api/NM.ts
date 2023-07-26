@@ -265,6 +265,18 @@ export function getCreatorSubmissions (id: ID<"user">, f = fetch) {
 }
 
 /**
+ * Get the data of the authenticated user
+ */
+export async function getCurrentUserData (f = fetch) {
+    const data1 = await get<NM.UserAccount>("api", "/user/current/", {}, f);
+    const data2 = await get<NM.UserInfo>("api", `/users/${data1.id}/`, {}, f);
+    return {
+        ...data1,
+        ...data2,
+    };
+}
+
+/**
  * Get the creator
  * @param id - the creator's id
  * @returns paginated array of matched results
@@ -297,6 +309,18 @@ export async function getFavoriteSetts (id: ID<"user">) {
         `/users/${id}/favorites/setts/`,
     );
     return merge(data).results;
+}
+
+/**
+ * Get the current number of freebies and time of next freebie
+ * @returns freebies count and time to next freebie
+ */
+export async function getFreebieBalance (f = fetch) {
+    const data = await get<NM.Unmerged.Container<{
+        freebies: number,
+        seconds: number | null,
+    }>>("api", "/num-freebies-left", {}, f);
+    return merge(data);
 }
 
 /**
@@ -638,18 +662,14 @@ export function removeFriend (id: ID<"user">) {
  * @param password - the user's password
  * @returns the authentication result
  */
-export function signIn (username: string, password: string): Promise<{
+export function signIn (username: string, password: string, f = fetch): Promise<{
     redirect:absoluteURL
 }|{
     code?: string,
     detail: string,
     field_errors?: Record<string, string>,
 }> {
-    return fetch(makeUrl("api", "/signin/"), {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-        headers: { "Content-Type": "application/json" },
-    }).then((r) => r.json());
+    return post("api", "/signin/", { username, password }, f);
 }
 
 /**
@@ -688,10 +708,11 @@ export function unblockUser (id: ID<"user">) {
 }
 
 /**
- * Update the CSRF token
+ * Update the cookie with CSRF token.
+ * At calling on the server, returns the token
  */
-export function updateCsrfToken () {
-    return get("nma", `/csrftoken/`);
+export function updateCsrfToken (f = fetch) {
+    return get<string>("nma", `/csrftoken`, {}, f);
 }
 
 // displayCase: `/user/${id}/display-case`

@@ -5,10 +5,11 @@
     import Icon from "$elem/Icon.svelte";
     import MetaSeo from "$elem/MetaSeo.svelte";
     import Submission from "$elem/Submission.svelte";
-    import currentUser from "$lib/services/currentUser";
     import { infiniteScroll } from "$lib/utils/utils";
 
     export let data;
+
+    const { isAuthenticated } = data.currentUser;
 
     $: cat = $page.params.category;
     $: submissions = PagePaginator.fromPOJO(data.p.submissions);
@@ -26,7 +27,7 @@
 
 <article>
     <header>
-        {#if $currentUser.isAuthenticated}
+        {#if $isAuthenticated}
             <Button on:click={submitPitch}>Submit your pitch</Button>
         {/if}
         <h1>Vote for Future Series</h1>

@@ -186,6 +186,22 @@ export function timeAgo (time: string, baseTime?: string, isCondensed = false) {
 // }
 
 /**
+ * Text representation of time til the given time in HH:mm:ss or mm:ss format
+ * @param time - the target time
+ * @returns the text or empty text if the target time has passed
+ */
+export function timeTil (time: number) {
+    const left = Math.round((time - Date.now()) / 1000);
+    if (left <= 0) return "";
+    const numbers = [
+        Math.floor((left / 60) % 60),
+        Math.floor(left % 60),
+    ];
+    if (left >= 3600) numbers.unshift(Math.floor(left / 3600));
+    return numbers.map((n) => n.toString().padStart(2, "0")).join(":");
+}
+
+/**
  * Text ISO8601 timestamp of now
  */
 export function timestampNow () {

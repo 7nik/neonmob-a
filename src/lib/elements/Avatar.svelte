@@ -13,11 +13,11 @@
      */
     export let size: "small"|"large"|"fill" = "small";
 
-    const src = ("avatar" in user
+    $: src = ("avatar" in user
         ? user.avatar[size === "small" ? "small" : "large"]
         : user.avatar_url)
         || config.defaultAvatarUrl;
-    const name = "full_name" in user ? user.full_name : user.username;
+    $: name = "full_name" in user ? user.full_name : user.username;
 
     // has to use such approach because typing don't allow
     // declaration of `onerror` right in HTML

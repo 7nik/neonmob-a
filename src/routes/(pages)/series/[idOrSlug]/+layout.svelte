@@ -1,11 +1,12 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import Tabs from "$elem/Tabs.svelte";
-    import currentUser from "$lib/services/currentUser";
     import SettInfo from "$lib/utils/SettInfo";
     import SettHeader from "./SettHeader.svelte";
 
     export let data;
+
+    const { isAuthenticated, user } = data.currentUser;
 
     $: ({ sett } = data);
     $: settInfo = new SettInfo(sett);
@@ -19,7 +20,7 @@
     function setupTabs (settInfo: SettInfo) {
         tabs = tabs.slice(0, 1);
         const targetUsername = $page.url.pathname.split("/")[4];
-        if (targetUsername && targetUsername !== currentUser.username) {
+        if (targetUsername && targetUsername !== user.username) {
             tabs.push({
                 path: `user/${targetUsername}/cards/`,
                 // TODO fix to first name and show correct number of cards
@@ -28,14 +29,14 @@
             });
         }
         // TODO check whether the current user collects the sett
-        if (currentUser.isAuthenticated && targetUsername === currentUser.username) {
+        if (isAuthenticated() && targetUsername === user.username) {
             tabs.push({
-                path: `user/${currentUser.username}/cards/`,
+                path: `user/${user.username}/cards/`,
                 name: `Your Cards
                     (${settInfo.cards("core", "owned")}/${settInfo.cards("core", "total")})`,
             });
         }
-        if (!currentUser.isAuthenticated || targetUsername !== currentUser.username) {
+        if (!isAuthenticated() || targetUsername !== user.username) {
             tabs.push({
                 path: "",
                 name: "Preview Cards",

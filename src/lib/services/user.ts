@@ -1,11 +1,14 @@
 import type NM from "$lib/utils/NM Types";
-import currentUser from "$lib/services/currentUser";
+
+import { lazyCurrentUser } from "$lib/services/CurrentUser";
+
+const currentUser = lazyCurrentUser();
 
 /**
  * Returns the user's first name either username
  */
 export function firstName (user: NM.UserMinimal) {
-    if (user.id === currentUser.id) {
+    if (currentUser.isCurrentUser(user)) {
         return "You";
     }
     return user.first_name || user.username || "someone";
@@ -17,7 +20,7 @@ export function firstName (user: NM.UserMinimal) {
  * @param capital - Whether to capitalize "your", default - no
  */
 export function firstNamePossessive (user: NM.UserMinimal, capital = false) {
-    if (user.id === currentUser.id) {
+    if (currentUser.isCurrentUser(user)) {
         return capital ? "Your" : "your";
     }
     return `${firstName(user)}'s`;

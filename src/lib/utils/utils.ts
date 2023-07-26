@@ -267,7 +267,7 @@ export function array2columns<T> (
  * @returns cookie value or nothing
  */
 export function getCookie (name: string) {
-    const [, valueAndTrash] = `; ${document.cookie}`.split(`; ${name}=`);
+    const [, valueAndTrash] = `; ${globalThis.document?.cookie}`.split(`; ${name}=`);
     if (valueAndTrash) return valueAndTrash.split(";", 2)[0];
     return null;
 }

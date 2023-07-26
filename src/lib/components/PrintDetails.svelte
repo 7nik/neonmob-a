@@ -4,6 +4,7 @@
 <script lang="ts">
     import type NM from "$lib/utils/NM Types";
 
+    import { page } from "$app/stores";
     import Avatar from "$elem/Avatar.svelte";
     import Button from "$elem/Button.svelte";
     import Clickable from "$elem/Clickable.svelte";
@@ -12,12 +13,13 @@
     import RarityText from "$elem/RarityText.svelte";
     import { htmlTip } from "$lib/actions/tip";
     import { showShare, fail } from "$lib/dialogs";
-    import currentUser from "$lib/services/currentUser";
     import { plural } from "$lib/utils/format";
     import ShortenText from "./ShortenText.svelte";
 
     export let card: NM.Unmerged.Prints | NM.Unmerged.Card;
     export let owner: Pick<NM.User, "id" | "username" | "name" | "avatar"> | null;
+
+    const { isAuthenticated, isCurrentUser } = $page.data.currentUser;
 
     $: aspectRatio = card.piece_assets.image.large.width / card.piece_assets.image.large.height;
     $: printCount = "prints" in card ? card.prints.length : 0;
@@ -38,11 +40,11 @@
         {#key card.id}
             <PrintAsset
                 card={card} size="xlarge"
-                isPublic={!$currentUser.isAuthenticated}
+                isPublic={!$isAuthenticated}
             />
         {/key}
         {#if owner && "prints" in card && card.prints.length > 0}
-            {@const name = currentUser.is(owner) ? "You own" : `${owner.name} owns`}
+            {@const name = $isCurrentUser(owner) ? "You own" : `${owner.name} owns`}
             <!-- FIXME also check if user views own prints -->
             <div class="print-numbers" use:htmlTip={`${name}:<br>#${
                 card.prints.map((p) => p.print_num).join("<br>#")
@@ -73,7 +75,7 @@
             <Icon icon={card.rarity.class} upper={true} />
             <RarityText rarity={card.rarity.class} darkTheme>{card.rarity.name}</RarityText>
         </div>
-        {#if $currentUser.isAuthenticated && "favorite" in card}
+        {#if $isAuthenticated && "favorite" in card}
             <div class="row">
                 {#if printCount}
                     <Icon icon={card.favorite ? "liked" : "like"} upper={true} />
@@ -84,7 +86,7 @@
                 {/if}
             </div>
         {/if}
-        {#if owner && $currentUser.is(owner)}
+        {#if owner && $isCurrentUser(owner)}
             <div class="row">
                 <Icon icon={printCount > 1
                     ? "multiPrints"
@@ -102,13 +104,13 @@
             </div>
         {/if}
         <div class="actions">
-            {#if $currentUser.isAuthenticated}
+            {#if $isAuthenticated}
                 <!-- FIXME replace card.own_count with checking against real owner? -->
-                {#if $currentUser.canDo("trade")}
+                <!-- {#if $currentUser.canDo("trade")} -->
                     <Button icon="trade"
                         on:click={(ev) => { ev.stopPropagation(); fail(); }}
                     >Trade</Button>
-                {/if}
+                <!-- {/if} -->
                 <!-- FIXME also check if user views own prints -->
                 {#if printCount}
                     <Button type="subdued-light"

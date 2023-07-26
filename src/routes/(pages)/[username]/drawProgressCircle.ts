@@ -56,8 +56,6 @@ export default ({
     startColor: string,
     endColor: string,
 }) => {
-    ctx.lineWidth = thickness;
-
     const speed = 0.001; // value per ms
     let startTime: number;
 
@@ -69,7 +67,9 @@ export default ({
             startTime = time;
             pos = speed;
         }
+        ctx.lineWidth = thickness * 0.8;
         drawArc(ctx, 0, 2 * Math.PI, cx, cy, r, bgColor, bgColor);
+        ctx.lineWidth = thickness;
         if (pos > 0.6) {
             drawArc(ctx, 0, pos * 0.2, cx, cy, r, startColor, startColor);
             drawArc(ctx, pos * 0.2, pos * 0.8, cx, cy, r, startColor, endColor);

@@ -1,13 +1,12 @@
-// import { HOSTNAMES } from "$env/static/private";
 import { error, json } from "@sveltejs/kit";
 import domain from "../domain.js";
 
-// const allowedHosts = HOSTNAMES.split(",");
-
-export const GET = async ({ request, params, cookies }) => {
-    // if (!allowedHosts.includes(request.headers.get("host")!)) {
-    //     throw error(403);
-    // }
+export const GET = async ({
+    url,
+    params,
+    cookies,
+    isSubRequest,
+}) => {
     const resp = await fetch(`${domain(params.s)}/login`);
     for (const [name, value] of resp.headers.entries()) {
         if (name.toLowerCase() === "set-cookie" && value.startsWith("csrftoken=")) {
@@ -16,15 +15,14 @@ export const GET = async ({ request, params, cookies }) => {
                 expires: new Date(exp),
                 maxAge: +maxage,
                 path: "/",
-                // TODO: enable
-                // secure: true,
+                domain: url.hostname,
             });
-            return json("new");
+            return json(isSubRequest ? token : "new");
         }
     }
 
     if (cookies.get("csrftoken")) {
-        return json("old");
+        return json(isSubRequest ? cookies.get("csrftoken") : "old");
     }
     throw error(404);
 };

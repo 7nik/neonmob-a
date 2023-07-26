@@ -14,12 +14,13 @@
     import Icon from "$elem/Icon.svelte";
     import MetaSeo from "$elem/MetaSeo.svelte";
     import Tabs from "$elem/Tabs.svelte";
-    import currentUser from "$lib/services/currentUser";
     import { infiniteScroll } from "$lib/utils/utils";
     import CardListItem from "./CardListItem.svelte";
     import SettListItem from "./SettListItem.svelte";
 
     export let data;
+
+    const { isAuthenticated, isCurrentUser, user } = data.currentUser;
 
     const tabs = [{
         // eslint-disable-next-line sonarjs/no-duplicate-string
@@ -59,7 +60,7 @@
     infiniteScroll(() => items.loadMore());
 
     onMount(() => {
-        if (currentUser.isAuthenticated) {
+        if (isAuthenticated()) {
             skip = false;
         } else {
             goto(`/login?next=${encodeURIComponent($page.url.pathname)}`);
@@ -90,19 +91,19 @@
     {:else if $items.length === 0}
         <div class="empty">
             <h2>
-                {#if currentUser.is(data.user)}
+                {#if $isCurrentUser(data.user)}
                     {#if currentTab === "Wishlist"}
                         Nothing on your Wish List?
                     {:else}
                         No Favorites Here!
                     {/if}
                 {:else}
-                    Hey {currentUser.you.name}! {data.user.name}
+                    Hey {user.name}! {data.user.name}
                     Doesn't Have Any {currentTab === "Wishlist" ? "Wishlist" : "Favorites"} Yet
                 {/if}
             </h2>
             <p>
-                {#if currentUser.is(data.user)}
+                {#if $isCurrentUser(data.user)}
                     {#if currentTab === "Wishlist"}
                         When you come across a card you want, click the
                         <Icon icon="wishlist" upper /> to add it here.

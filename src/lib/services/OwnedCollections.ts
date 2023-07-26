@@ -1,11 +1,13 @@
 import type NM from "$lib/utils/NM Types";
 import type { fullURL, ID } from "$lib/utils/NM Types";
-import LazyMap from "$lib/utils/LazyMap";
+
 import { getOwnedSettsMetrics } from "$api";
-import currentUser from "./currentUser";
+import { lazyCurrentUser } from "$lib/services/CurrentUser";
+import LazyMap from "$lib/utils/LazyMap";
 
 type MetricsMap = Record<number, NM.SettMetrics>;
 
+const currentUser = lazyCurrentUser();
 const data = new LazyMap<number, MetricsMap>(300_000);
 const loading = new Map<number, Promise<NM.SettMetrics[]>>();
 
@@ -43,7 +45,7 @@ async function loadOwnership (userId: ID<"user">) {
  * @param userId - the user ID
  */
 async function removeOwnership (userId: number) {
-    if (userId === currentUser.id) return;
+    if (currentUser.isCurrentUser(userId)) return;
     if (loading.has(userId)) await loading.get(userId);
     if (data.delete(userId)) {
         console.debug(userId, "'s collections will be unloaded");

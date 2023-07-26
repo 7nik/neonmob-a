@@ -969,6 +969,46 @@ declare namespace NM {
         trader_score: number
     }
 
+    /**
+     * /api/accounts/$USER_ID$/
+     */
+    type UserAccount = Omit<CurrentUser, "avatar"|"num_pieces_to_redeem"
+        |"has_rewards"|"balance"|"num_daily_freebies"|"pack_freebies_today"
+        |"num_freebies_left"|"is_creator"|"is_staff"|"is_verified"|"permissions"
+        |"accessible_features"|"new_user_nav_variant"|"carats_per_free_pack"
+    > & {
+        first_name: string,
+        last_name: string,
+        social_disconnect_links: {},
+        small_avatar_url: fullURL,
+        large_avatar_url: fullURL,
+        original_avatar_url: fullURL,
+        has_usable_password: boolean,
+        credits_balance: number,
+        date_joined: string,
+        streaks: {
+            best_streak: number,
+            current_streak: number,
+        },
+        cards: number,
+        special_cards: number,
+        milestones_count: number,
+        trades_count: number,
+        app_uuid: null,
+        min_app_version: string,
+        app_version: {
+            ios: string,
+            android: string,
+        },
+        ios_app_url: string,
+        app_url: {
+            ios: string,
+            android: string,
+        },
+        can_brag: boolean,
+        signup_completion_status: boolean,
+    }
+
     type UserCollocutor = Omit<NM.User, "last_name"> & {
         pro_badge: string|null,
         pro_status: ProStatus,

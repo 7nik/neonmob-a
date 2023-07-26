@@ -4,7 +4,6 @@
  <script context="module" lang="ts">
     import type { rarityCss } from "$lib/utils/NM Types";
 
-    // import currentUser from "$lib/currentUser";
     // import OwnedCards from "$lib/services/ownedCards";
     // import { loadValue } from "$lib/utils/storage";
 

@@ -4,8 +4,10 @@ import type { rarityNameLow } from "./NM Types";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
-import currentUser from "$lib/services/currentUser";
+import { lazyCurrentUser } from "$lib/services/CurrentUser";
 import config from "./config";
+
+const currentUser = lazyCurrentUser();
 
 class SettInfo {
     private sett: NM.Sett & { status?: number };
@@ -68,7 +70,7 @@ class SettInfo {
     }
 
     get areFreebiesAvailableNow () {
-        if (!currentUser.isAuthenticated
+        if (!currentUser.isAuthenticated()
             || !this.sett.daily_freebies
             || this.sett.freebies_discontinued
         ) {
@@ -77,7 +79,7 @@ class SettInfo {
         const dailyFreebies = this.sett.daily_freebies < 0
             ? Number.POSITIVE_INFINITY
             : this.sett.daily_freebies;
-        const remainingFreebies = dailyFreebies - currentUser.freebiesUsed(this.sett.id);
+        const remainingFreebies = dailyFreebies - (currentUser.freebieUsed[this.sett.id] ?? 0);
         return remainingFreebies > 0 && currentUser.freebies > 0;
     }
 

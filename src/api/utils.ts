@@ -4,6 +4,7 @@ import type { absoluteURL, fullURL } from "$lib/utils/NM Types";
 
 import { PUBLIC_API_SERVER, PUBLIC_NAPI_SERVER, PUBLIC_CAPI_SERVER } from "$env/static/public";
 import { error } from "@sveltejs/kit";
+import { getCookie } from "$lib/utils/utils";
 // import { error, getCookie } from "./utils";
 
 type Fetch = typeof fetch;
@@ -133,15 +134,14 @@ export function get<T, S extends Server | "url" = Server | "url"> (
  * @param fetch_ - the fetch function
  * @return parsed JSON response
  */
-export function post<T> (
+export async function post<T> (
     type: Server,
     url: absoluteURL,
     body?: BodyInit | object,
     fetch_ = fetch,
 ): Promise<T> {
     const headers: HeadersInit = {
-        // FIXME pass CSRFToken ?
-        // "X-CSRFToken": (getCookie("csrftoken") || ""),
+        "X-CSRFToken": (getCookie("csrftoken") || ""),
     };
     // if it is a plain object
     if (body && Object.getPrototypeOf(body) === Object.prototype) {

@@ -10,11 +10,12 @@
     import MetaSeo from "$elem/MetaSeo.svelte";
     import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
     import { viewPrint } from "$lib/overlays";
-    import currentUser from "$lib/services/currentUser";
     import { RARITY } from "$lib/utils/config";
     import { scaleHeight } from "$lib/utils/utils";
 
     export let data;
+
+    const { isAuthenticated } = data.currentUser;
 
     const filtersSchema: FiltersSchema = {
         buttons: [{
@@ -57,7 +58,7 @@
             desc: false,
         }],
     };
-    if (currentUser.isAuthenticated) {
+    if (isAuthenticated()) {
         filtersSchema.buttons.unshift({
             key: "favorite",
             hint: "Favorites",

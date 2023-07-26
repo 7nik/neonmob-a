@@ -24,6 +24,7 @@ const QUOTE_BANK = [
 ];
 
 // select quote on the server side so it won't change at hydration
-export const load = () => ({
+export const load = ({ cookies }) => ({
     quote: QUOTE_BANK[Math.floor(QUOTE_BANK.length * Math.random())],
+    hasSession: !!cookies.get("sessionid"),
 });

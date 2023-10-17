@@ -292,6 +292,8 @@ declare namespace NM {
         public_url: fullURL,
     }
 
+    type CardMinimal = Pick<NM.OwnedCard, "id"|"rarity"|"sett_id">;
+
     type Category = {
         collect_url: absoluteURL, // HTML
         description: string,
@@ -709,6 +711,10 @@ declare namespace NM {
             total_prints?: number
         }[]
         /**
+         * An optional field added by NMA to indicate whose stats here
+         */
+        ownerId?: ID<"user">,
+        /**
          * Moved to `/api/pack-tiers/?sett_id=`
          */
         free_packs_available: boolean,
@@ -972,10 +978,11 @@ declare namespace NM {
     /**
      * /api/accounts/$USER_ID$/
      */
-    type UserAccount = Omit<CurrentUser, "avatar"|"num_pieces_to_redeem"
-        |"has_rewards"|"balance"|"num_daily_freebies"|"pack_freebies_today"
-        |"num_freebies_left"|"is_creator"|"is_staff"|"is_verified"|"permissions"
-        |"accessible_features"|"new_user_nav_variant"|"carats_per_free_pack"
+    type UserAccount = Pick<CurrentUser, "id"|"username"|"timezone_offset"
+        |"original_timezone_offset"|"bio"|"pro_status"|"pro_badge"|"email"
+        |"connected_accounts"|"vacation_mode"|"referral_code"
+        |"todays_freebies_count"|"trader_score"|"carats"
+        |"pro_subscription_enabled"|"level"|"points"|"get_freebie_limit"
     > & {
         first_name: string,
         last_name: string,
@@ -1045,8 +1052,9 @@ declare namespace NM {
      */
     type UserInfo = Omit<UserData, "timezone_offset"|"tranche"|"total_freebie"|
             "new_freebie_time"|"twitter_username">
-        & Pick<CurrentUser, "points"|"level">
         & {
+            points: number,
+            level: UserLevel,
             has_released_sett: boolean,
             new_user_nav_variant: boolean,
             streaks: {

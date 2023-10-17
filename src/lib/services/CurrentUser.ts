@@ -1,12 +1,62 @@
+/* eslint-disable class-methods-use-this */
+// eslint-disable-next-line max-classes-per-file
 import type NM from "$lib/utils/NM Types";
 import type { ID } from "$lib/utils/NM Types";
+import type { Readable } from "svelte/store";
+import type { Progress } from "./OwnedCollections";
 
-import { get } from "svelte/store";
+import { get, readable } from "svelte/store";
 import { browser } from "$app/environment";
 import { page } from "$app/stores";
-import { getCurrentUserData, getFreebieBalance } from "$api";
+import { getCurrentUserData, getFreebieBalance, getUserData } from "$api";
 import { timeTil } from "$lib/utils/date";
 import storefy from "$lib/utils/storefy";
+import OwnedCards from "./OwnedCards";
+import { EMPTY_PROGRESS } from "./OwnedCollections";
+
+/**
+ * Type without private props
+ */
+type PublicInterface<T> = {
+    [P in keyof T]: T[P];
+}
+class MockUserCards implements PublicInterface<OwnedCards> {
+    get isLoading (): boolean {
+        return false;
+    }
+
+    waitLoading (): Promise<void> {
+        return Promise.resolve();
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    addPrints (_cards: NM.CardMinimal[]): void {}
+    getPrintCount(_cardId: number): number;
+    getPrintCount(_cardId: number, asStore: true): Readable<number>;
+    getPrintCount (_cardId: number, asStore?: boolean): number | Readable<number> {
+        return asStore ? readable(1) : 1;
+    }
+
+    hasPrint(_cardId: number): boolean;
+    hasPrint(_cardId: number, asStore: true): Readable<boolean>;
+    hasPrint (_cardId: number, asStore?: boolean): boolean | Readable<boolean> {
+        return asStore ? readable(true) : true;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    removePrints (_cards: NM.CardMinimal[] | [NM.CardMinimal, number][]): void {}
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    updateCollection (_cards: NM.CardMinimal[], _change: 1 | -1): void {}
+    listCollections (): NM.SettMetrics[] {
+        return [];
+    }
+
+    getProgress(_settId: ID<"sett">): Progress;
+    getProgress(_settId: ID<"sett">, asStore: true): Readable<Progress>;
+    getProgress (_settId: ID<"sett">, asStore?: boolean): Progress | Readable<Progress> {
+        return asStore ? readable(EMPTY_PROGRESS) : EMPTY_PROGRESS;
+    }
+}
 
 class CurrentUser {
     carats = 0;
@@ -40,41 +90,71 @@ class CurrentUser {
         trader_score: 7,
     } as NM.UserFriend & NM.User;
 
+    wealth = new MockUserCards();
+
     /**
-     * Loads the authenticated user data
+     * Load main part of the authenticated user data
      */
-    async loadUser (f = fetch) {
+    private async loadBase (f = fetch) {
         const rawUser = await getCurrentUserData(f);
+        this.wealth = new OwnedCards(rawUser.id, f);
         this.carats = rawUser.carats;
         this.credits = rawUser.credits_balance;
         this.isAuthenticated = true;
         this.isProUser = Boolean(rawUser.pro_status);
-        this.isVerified = rawUser.is_verified;
         this.freebieLimit = rawUser.get_freebie_limit;
         this.freebieUsed = rawUser.todays_freebies_count;
         this.level = rawUser.level;
         this.referralCode = rawUser.referral_code;
-        this.referralUrl = rawUser.links.referral_url;
+        this.referralUrl = `/join/${rawUser.referral_code}`;
         this.user = {
             id: rawUser.id,
             first_name: rawUser.first_name,
-            name: rawUser.name,
+            name: `${rawUser.first_name} ${rawUser.last_name}`.trim(),
             username: rawUser.username,
-            avatar: rawUser.avatar,
-            link: rawUser.links.profile,
+            avatar: {
+                large: rawUser.large_avatar_url,
+                small: rawUser.small_avatar_url,
+            },
+            link: `/${rawUser.username}`,
             pro_badge: rawUser.pro_badge,
             pro_status: rawUser?.pro_status,
             twitter_username: null,
             url: "/", // api endpoint
             bio: rawUser.bio,
             last_name: rawUser.last_name,
-            links: rawUser.links,
+            links: {} as NM.User["links"],
             trader_score: rawUser.trader_score,
         };
         // to trigger re-running this method
         this.isCurrentUser = this.isCurrentUser;
 
-        await this.refreshFreebies(f);
+        return rawUser.id;
+    }
+
+    private async loadExtra (userId: ID<"user">, f: typeof fetch) {
+        const rawExtra = await getUserData(userId, f);
+        this.isVerified = rawExtra.is_verified;
+        this.user.link = rawExtra.link;
+        this.user.links = rawExtra.links;
+        this.referralUrl = rawExtra.links.referral_url;
+    }
+
+    /**
+     * Loads the authenticated user data
+     */
+    async loadUser (f = fetch, userId: ID<"user">|null = null) {
+        await Promise.all([
+            // eslint-disable-next-line consistent-return
+            this.loadBase(f).then((realId) => {
+                if (realId !== userId) {
+                    return this.loadExtra(realId, f);
+                }
+            }),
+            userId ? this.loadExtra(userId, f) : Promise.resolve(),
+            this.refreshFreebies(f),
+        ]);
+        await this.wealth.waitLoading();
     }
 
     /**

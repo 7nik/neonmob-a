@@ -5,7 +5,7 @@ export const load = async ({ data, fetch }) => {
     const currentUser = CurrentUser();
     if (data.hasSession) {
         try {
-            await currentUser.loadUser(fetch);
+            await currentUser.loadUser(fetch, data.userId);
             if (browser) {
                 // reset the list of the opened pack at midnight
                 const midnight = new Date();

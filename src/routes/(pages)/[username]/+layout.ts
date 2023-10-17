@@ -9,7 +9,8 @@ export const load = async ({ params, fetch }) => {
     return {
         user: getUserData(userId, fetch),
         p: {
-            stats: getUserStatsBase(userId, fetch),
+            stats: getUserStatsBase(userId, fetch)
+                .catch((err) => { console.error(err); return []; }),
         },
     };
 };

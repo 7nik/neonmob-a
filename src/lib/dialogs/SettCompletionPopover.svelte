@@ -16,7 +16,7 @@
 
 <PopoverWindow {element} on:closed>
     <h3>
-        {firstNamePossessive(owner)}
+        {firstNamePossessive(owner, true)}
         "{sett.name}"
         Progress
     </h3>
@@ -29,7 +29,7 @@
             </span>
         {/each}
         <aside>
-            <SettCompletionGraph {sett} show={"core"} size={70} darkTheme />
+            <SettCompletionGraph {sett} ownerId={owner.id} show={"core"} size={70} darkTheme />
         </aside>
     </div>
     {#if sett.special_stats?.length}
@@ -42,7 +42,13 @@
                 </span>
             {/each}
             <aside>
-                <SettCompletionGraph {sett} show={"specials"} size={70} darkTheme />
+                <SettCompletionGraph
+                    {sett}
+                    ownerId={owner.id}
+                    show={"specials"}
+                    size={70}
+                    darkTheme
+                />
             </aside>
         </div>
     {/if}

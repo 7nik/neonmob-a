@@ -7,9 +7,10 @@
         if ($page.url.searchParams.has("next")) {
             goto($page.url.searchParams.get("next")!);
         } else {
-            window.history.back();
+            goto("/");
         }
     }
+    // TODO shiny button and disable at 429
 </script>
 
 <article>

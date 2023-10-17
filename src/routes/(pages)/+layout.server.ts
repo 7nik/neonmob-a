@@ -27,4 +27,5 @@ const QUOTE_BANK = [
 export const load = ({ cookies }) => ({
     quote: QUOTE_BANK[Math.floor(QUOTE_BANK.length * Math.random())],
     hasSession: !!cookies.get("sessionid"),
+    userId: Number(cookies.get("user_id")) || null,
 });

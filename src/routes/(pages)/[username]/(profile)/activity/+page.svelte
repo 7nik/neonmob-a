@@ -31,7 +31,7 @@
 
         const collections = new OwnedCollections(data.user.id);
         await collections.waitLoading();
-        const arr = collections.getCollections();
+        const arr = collections.listCollections();
         const recentCollections = arr.concat()
             .sort((a, b) => b.pack_last_acquired - a.pack_last_acquired);
         recent3 = recentCollections.splice(0, 3);

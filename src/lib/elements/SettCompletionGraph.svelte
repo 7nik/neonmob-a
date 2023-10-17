@@ -2,11 +2,18 @@
     Draws a collection progress circle(s)
  -->
 <script lang="ts">
+    import type { ID } from "$lib/utils/NM Types";
     import type NM from "$lib/utils/NM Types";
 
     import SettInfo from "$lib/utils/SettInfo";
+    import { readable } from "svelte/store";
+    import { page } from "$app/stores";
 
     export let sett: NM.Sett;
+    /**
+     * The progress owner
+     */
+    export let ownerId: ID<"user">;
     /**
      * Height and width of the graph
      */
@@ -20,20 +27,22 @@
      */
     export let darkTheme = false;
 
+    // use build-in progress only when view somebody's progress
+    $: progress = sett.ownerId === ownerId && !$page.data.currentUser.isCurrentUser(ownerId)
+        ? readable(new SettInfo(sett).getProgress())
+        : $page.data.currentUser.wealth.getProgress(sett.id, true);
+    $: corePercent = $progress.core.owned
+        ? Math.floor(100 * $progress.core.owned / $progress.core.count)
+        : 0;
+    $: specialTotal = $progress.total.count - $progress.core.count;
+    $: specialOwned = $progress.total.owned - $progress.core.owned;
+    $: specialPercent = specialTotal ? Math.floor(100 * specialOwned / specialTotal) : 0;
+
     const strokeWidth = 2;
     const specialRadius = size / 2 - strokeWidth;
     const coreRadius = size / 2 - 2 * strokeWidth;
     const cx = size / 2;
     const cy = size / 2;
-
-    // FIXME implement completion for non-current user
-    const settInfo = new SettInfo(sett);
-    const corePercent = Math.floor(
-        100 * settInfo.cards("core", "owned") / settInfo.cards("core", "total"),
-    );
-    const specialPercent = settInfo.cards("special", "total")
-        ? Math.floor(100 * settInfo.cards("special", "owned") / settInfo.cards("special", "total"))
-        : 0;
     const circumference = (r: number) => 2 * Math.PI * r;
     const dashOffset = (percent: number, r: number) => (100 - percent) / 100 * circumference(r);
 </script>
@@ -75,7 +84,7 @@
                 stroke-width="{strokeWidth}"
             ></circle>
         {/if}
-        {#if show === "specials" || show === "all" && settInfo.has("special")}
+        {#if show === "specials" || show === "all" && specialTotal > 0}
             <circle
                 class="completion--track"
                 r="{specialRadius}"

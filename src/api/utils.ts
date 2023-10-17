@@ -72,15 +72,25 @@ async function request<T> (url: fullURL | URL, body: RequestInit, fetch: Fetch):
     if (resp.ok) {
         return resp.status === 204 ? null : resp.json();
     }
-    // if (resp.headers.get("Content-Type")?.includes("/json")) {
-    const data = await resp.json();
-    console.error(url.toString(), resp.status, resp.statusText, data);
-    if (data.detail) {
-        throw error(resp.status, data.detail);
+
+    console.error("Non-ok response", url.toString(), resp.status, resp.statusText);
+    const text = await resp.text();
+    if (`[{"`.includes(text[0])) {
+        const err = JSON.parse(text);
+        console.error("JSON reason:", text);
+        if (err.detail) {
+            throw error(resp.status, err.detail);
+        }
+    } else if (text.startsWith("<")) {
+        const reason = text.match(
+            `<div class="container main">\\s+<div[^>]+>\\s+<h1>([^<]+)</h1>`,
+        )?.[1];
+        console.error("HTML Reason:", reason);
+        throw error(resp.status, reason);
+    } else {
+        console.error("Unknown response type:", text);
     }
-    // } else {
-    //     console.error(url.toString(), resp.status, resp.statusText);
-    // }
+
     let detail: string;
     switch (resp.status) {
         case 400:

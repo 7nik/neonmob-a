@@ -20,9 +20,9 @@ function createReactiveField <T> (initialValue: T) {
             if (prop === "update") return store.update;
             if (prop === "set") return store.set;
 
-            return isPrimitive
-                ? (value as any)?.[prop]
-                : Reflect.get(value as object, prop);
+            if (isPrimitive) return (value as any)?.[prop];
+            const field = Reflect.get(value as object, prop);
+            return typeof field === "function" ? field.bind(value) : field;
         },
         set (_, prop, newValue) {
             (value as any)[prop] = newValue;

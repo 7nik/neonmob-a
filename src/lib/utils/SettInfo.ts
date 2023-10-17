@@ -1,11 +1,13 @@
 import type NM from "./NM Types";
 import type { rarityNameLow } from "./NM Types";
+import type { Progress } from "$lib/services/OwnedCollections";
 
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { lazyCurrentUser } from "$lib/services/CurrentUser";
 import config from "./config";
+import { fullUrl } from "$lib/utils/utils";
 
 const currentUser = lazyCurrentUser();
 
@@ -109,6 +111,46 @@ class SettInfo {
             default:
                 return 0;
         }
+    }
+
+    getProgress (): Progress {
+        const p: Progress = {
+            core: {
+                count: 0,
+                owned: 0,
+            },
+            chase: {
+                count: 0,
+                owned: 0,
+            },
+            variant: {
+                count: 0,
+                owned: 0,
+            },
+            legendary: {
+                count: 0,
+                owned: 0,
+            },
+            total: {
+                count: 0,
+                owned: 0,
+            },
+            name: this.sett.name,
+            permalink: fullUrl(this.sett.permalink),
+        };
+
+        for (const stat of this.sett.core_stats) {
+            p.core.count += stat.total;
+            p.core.owned += stat.owned;
+        }
+        for (const stat of this.sett.special_stats) {
+            p[stat.name].count = stat.total;
+            p[stat.name].owned = stat.owned;
+        }
+        p.total.count = p.core.count + p.chase.count + p.variant.count + p.legendary.count;
+        p.total.owned = p.core.owned + p.chase.owned + p.variant.owned + p.legendary.owned;
+
+        return p;
     }
 
     /**

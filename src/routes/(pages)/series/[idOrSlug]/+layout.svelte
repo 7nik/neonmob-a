@@ -1,42 +1,48 @@
 <script lang="ts">
-    import { page } from "$app/stores";
     import Tabs from "$elem/Tabs.svelte";
     import SettInfo from "$lib/utils/SettInfo";
     import SettHeader from "./SettHeader.svelte";
 
     export let data;
 
-    const { isAuthenticated, user } = data.currentUser;
+    const { user, isCurrentUser, wealth } = data.currentUser;
 
-    $: ({ sett } = data);
+    $: ({ sett, owner } = data);
     $: settInfo = new SettInfo(sett);
-    $: setupTabs(settInfo);
+    $: setupTabs(), sett, owner;
 
     let tabs: { path: string, name: string, tab?: string }[] = [{
         path: "",
         name: "Series Details",
     }];
 
-    function setupTabs (settInfo: SettInfo) {
+    function setupTabs () {
+        if (owner
+            ? tabs.some((tab) => tab.path === `user/${owner!.username}/cards/`)
+            : tabs.length > 1
+        ) {
+            return;
+        }
+
         tabs = tabs.slice(0, 1);
-        const targetUsername = $page.url.pathname.split("/")[4];
-        if (targetUsername && targetUsername !== user.username) {
+
+        if (owner && !isCurrentUser(owner)) {
             tabs.push({
-                path: `user/${targetUsername}/cards/`,
-                // TODO fix to first name and show correct number of cards
-                name: `${targetUsername}'s Cards
+                path: `user/${owner.username}/cards/`,
+                name: `${owner.first_name}'s Cards
                     (${settInfo.cards("core", "owned")}/${settInfo.cards("core", "total")})`,
             });
         }
-        // TODO check whether the current user collects the sett
-        if (isAuthenticated() && targetUsername === user.username) {
+
+        const progress = wealth.getProgress(sett.id);
+        const isCollecting = progress.total.owned > 0;
+        // TODO make reactive
+        if (isCollecting) {
             tabs.push({
                 path: `user/${user.username}/cards/`,
-                name: `Your Cards
-                    (${settInfo.cards("core", "owned")}/${settInfo.cards("core", "total")})`,
+                name: `Your Cards (${progress.core.owned}/${progress.core.count})`,
             });
-        }
-        if (!isAuthenticated() || targetUsername !== user.username) {
+        } else {
             tabs.push({
                 path: "",
                 name: "Preview Cards",
@@ -48,7 +54,7 @@
 </script>
 
 <header style:background-image="url('{sett.sett_assets["large-blur"].url}')">
-    <SettHeader {sett} />
+    <SettHeader {sett} {owner} />
 </header>
 <Tabs basePath="/series/{data.sett.name_slug}/" {tabs} />
 <article>

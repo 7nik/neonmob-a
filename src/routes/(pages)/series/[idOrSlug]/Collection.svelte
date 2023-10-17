@@ -72,10 +72,14 @@
 
     let cards: NM.Card[] = [];
     let isUserCollecting: boolean;
-    collection.then((data) => {
+    $: {
+        cards = [];
+        collection.then(setCards);
+    }
+    function setCards (data: NM.Card[]) {
         cards = data;
         isUserCollecting = cards.some((c) => c.own_count > 0);
-    });
+    }
 
     let filteredCards: NM.Card[] = [];
 

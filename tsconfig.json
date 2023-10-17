@@ -32,5 +32,8 @@
 	"ts-node": {
 		"esm": true,
 		"experimentalSpecifierResolution": "node",
-	}
+	},
+	"exclude": [
+		"src/scripts/*"
+	]
 }

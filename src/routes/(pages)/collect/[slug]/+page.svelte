@@ -1,3 +1,64 @@
+<script lang="ts" context="module">
+    const advancedSorOptions = [{
+        name: "Date of Release: New to Old",
+        key: "release_date",
+        desc: true,
+    }, {
+        name: "Alphabetical: A to Z",
+        key: "alphabetical",
+        desc: false,
+    }, {
+        name: "Alphabetical: Z to A",
+        key: "alphabetical",
+        desc: true,
+    }, {
+        name: "Discontinue Date: Soonest First",
+        key: "discontinue_date",
+        desc: false,
+    }, {
+        name: "Difficulty: Easiest to Hardest",
+        key: "difficulty",
+        desc: false,
+    }, {
+        name: "Difficulty: Hardest to Easiest",
+        key: "difficulty",
+        desc: true,
+    }, {
+        name: "% Sold Out: Least to Most",
+        key: "percent_sold",
+        desc: false,
+    }];
+    const newbieSortOptions = [{
+        name: "A-Z",
+        key: "alphabetical",
+        desc: false,
+    }, {
+        name: "Release Date",
+        key: "release_date",
+        desc: true,
+    }, {
+        name: "Discontinue Date",
+        key: "discontinue_date",
+        desc: true,
+    }, {
+        name: "Difficulty",
+        key: "difficulty",
+        desc: false,
+    }, {
+        name: "% Series Completion",
+        key: "percent_owned",
+        desc: true,
+    }, {
+        name: "% Sold Out",
+        key: "percent_sold",
+        desc: true,
+    }];
+    const anonSortList = newbieSortOptions.filter((so) => so.key !== "percent_owned");
+    function getSortOptions (authenticated: boolean) {
+        // const sortOptions = currentUser.areFeaturesGated
+        return authenticated ? advancedSorOptions : anonSortList;
+    }
+</script>
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { page } from "$app/stores";
@@ -38,70 +99,10 @@
     let freebieSett = false;
     let creditSett = false;
 
-    // const sortOptions = currentUser.areFeaturesGated
-    $: sortOptions = $isAuthenticated
-        ? [{
-            name: "Date of Release: New to Old",
-            key: "release_date",
-            desc: true,
-        }, {
-            name: "Alphabetical: A to Z",
-            key: "alphabetical",
-            desc: false,
-        }, {
-            name: "Alphabetical: Z to A",
-            key: "alphabetical",
-            desc: true,
-        }, {
-            name: "Discontinue Date: Soonest First",
-            key: "discontinue_date",
-            desc: false,
-        }, {
-            name: "Difficulty: Easiest to Hardest",
-            key: "difficulty",
-            desc: false,
-        }, {
-            name: "Difficulty: Hardest to Easiest",
-            key: "difficulty",
-            desc: true,
-        }, {
-            name: "% Sold Out: Least to Most",
-            key: "percent_sold",
-            desc: false,
-        }]
-        : [{
-            name: "A-Z",
-            key: "alphabetical",
-            desc: false,
-        }, {
-            name: "Release Date",
-            key: "release_date",
-            desc: true,
-        }, {
-            name: "Discontinue Date",
-            key: "discontinue_date",
-            desc: true,
-        }, {
-            name: "Difficulty",
-            key: "difficulty",
-            desc: false,
-        }, {
-            name: "% Series Completion",
-            key: "percent_owned",
-            desc: true,
-        }, {
-            name: "% Sold Out",
-            key: "percent_sold",
-            desc: true,
-        }];
-    // if (isAuthenticated()) {
-    //     // made this reactive?
-    //     sortOptions.splice(3, 0, {
-    //         name: "% Series Completion",
-    //         key: "percent_owned",
-    //         desc: true,
-    //     });
-    // }
+    let sortOptions = getSortOptions($isAuthenticated);
+    $: {
+        sortOptions = getSortOptions($isAuthenticated);
+    }
     let sortOption = sortOptions.find((so) => so.key === "release_date") ?? sortOptions[0];
 
     infiniteScroll(() => setts.loadMore());

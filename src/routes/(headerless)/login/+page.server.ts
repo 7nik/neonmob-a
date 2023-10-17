@@ -1,8 +1,8 @@
 import { fail, redirect } from "@sveltejs/kit";
-import { signIn, updateCsrfToken } from "$api";
+import { getCurrentUserData, signIn, updateCsrfToken } from "$api";
 
 export const actions = {
-    default: async ({ request, fetch }) => {
+    default: async ({ request, fetch, cookies }) => {
         const data = await request.formData();
         const username = data.get("username");
         const password = data.get("password");
@@ -28,6 +28,10 @@ export const actions = {
 
         const result = await signIn(username as string, password as string, f);
         if ("redirect" in result) {
+            const user = await getCurrentUserData(fetch);
+            if (user) {
+                cookies.set("user_id", String(user.id), { maxAge: 365 * 86_400 });
+            }
             throw redirect(302, result.redirect);
         }
         return fail(400, result.field_errors ? {} : { detail: result.detail });

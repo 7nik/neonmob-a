@@ -4,7 +4,7 @@
 
     export let data;
 
-    $: ({ sett, p: { cards } } = data);
+    $: ({ sett, p } = data);
 </script>
 
 <!-- eslint-disable-next-line max-len -->
@@ -14,4 +14,4 @@
     url={sett.permalink}
 />
 
-<Collection {sett} collection={cards} />
+<Collection {sett} collection={p.cards ?? Promise.resolve([])} />

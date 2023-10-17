@@ -16,7 +16,7 @@
 
     export let sett: NM.Sett;
 
-    export let owner: Pick<NM.User, "username"> | null = null;
+    export let owner: NM.UserMinimal | undefined = undefined;
 
     const { isAuthenticated } = $page.data.currentUser;
 
@@ -39,7 +39,7 @@
             <a href="/creator/{sett.creator.username}">{sett.creator.name}</a>
         </div>
         {#if $isAuthenticated}
-            <SettCompletion {sett} darkTheme />
+            <SettCompletion {sett} darkTheme owner={owner} />
         {/if}
     </header>
     <a class="body" href={bodyLink}>

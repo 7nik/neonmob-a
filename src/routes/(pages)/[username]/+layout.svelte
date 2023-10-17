@@ -68,6 +68,7 @@
         favoritesCount = "?";
         // eslint-disable-next-line unicorn/no-unreadable-array-destructuring
         data.p.stats.then(([, milestones, , , favorites]) => {
+            if (!milestones && !favorites) return;
             milestonesCount = Number.parseInt(milestones.stats[1].value, 10)
                 + Number.parseInt(milestones.stats[2].value.replaceAll(",", ""), 10);
             favoritesCount = favorites.fav_pieces_count + favorites.fav_setts_count;

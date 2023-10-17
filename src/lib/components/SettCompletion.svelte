@@ -13,7 +13,7 @@
     /**
      * The owner of the collection
      */
-    export let owner: NM.User = $page.data.currentUser.user;
+    export let owner: NM.UserMinimal = $page.data.currentUser.user;
     /**
      * Theme (coloring)
      */
@@ -27,5 +27,5 @@
 </script>
 
 <Clickable on:click={(showPopover)}>
-    <SettCompletionGraph {sett} {darkTheme} />
+    <SettCompletionGraph {sett} ownerId={owner.id} {darkTheme} />
 </Clickable>

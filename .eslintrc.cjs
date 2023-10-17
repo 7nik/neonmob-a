@@ -90,45 +90,8 @@ module.exports = {
             { allowArrowFunctions: true },
         ],
         "id-blacklist": ["error", "e", "$e", "arguments"],
-        "import/no-extraneous-dependencies": [
-            "error", {
-                optionalDependencies: false,
-                peerDependencies: false,
-                packageDir: __dirname,
-            },
-        ],
         "import/no-unresolved": [2, { ignore: ["\\$app", "\\$env"] }],
-        "import/order": [
-            "error",
-            {
-                groups: [
-                    "type",
-                    "builtin",
-                    "external",
-                    "internal",
-                    "parent",
-                    "sibling",
-                    "index",
-                    "object",
-                ],
-                alphabetize: {
-                    order: "asc",
-                    caseInsensitive: true,
-                },
-                warnOnUnassignedImports: false,
-                pathGroups: [
-                    {
-                        pattern: "$app/*",
-                        group: "external",
-                        position: "after",
-                    },
-                    {
-                        pattern: "$env/**",
-                        group: "builtin",
-                    },
-                ],
-            },
-        ],
+
         indent: [
             "error",
             4,
@@ -201,7 +164,9 @@ module.exports = {
         "@typescript-eslint/no-non-null-assertion": "off",
         "default-param-last": "off", // ts
         "import/extensions": "off", // triggers on $app and no way to disable
+        "import/no-extraneous-dependencies": "off", // says add this project to the dependencies
         "import/no-mutable-exports": "off", // it's props in Svelte
+        "import/order": "off", // too much issues and problems
         "import/prefer-default-export": "off", // Svelte
         "no-await-in-loop": "off",
         "no-console": "off",
@@ -224,6 +189,7 @@ module.exports = {
         "vars-on-top": "off", // don't use anyway
         "unicorn/catch-error-name": "off",
         "unicorn/consistent-function-scoping": "off",
+        "unicorn/expiring-todo-comments": "off", // seem to crash ESLint
         "unicorn/filename-case": "off",
         "unicorn/no-array-callback-reference": "off",
         "unicorn/no-document-cookie": "off", // firstly implement cookieStore in FF and Safari

@@ -17,12 +17,18 @@
     import { fail } from "$lib/dialogs";
     import SettInfo from "$lib/utils/SettInfo";
     import share from "$lib/utils/share";
-
-    export let sett: NM.Sett;
+    import { firstNamePossessive } from "$lib/services/user";
 
     const { isAuthenticated, user } = $page.data.currentUser;
 
+    export let sett: NM.Sett;
+    /**
+     * Owner for the progress circles
+     */
+    export let owner: NM.User|null = null;
+
     $: settInfo = new SettInfo(sett);
+    $: u = owner ?? user;
 
     function shareOn (channel: "facebook" | "twitter") {
         const creator = sett.creator.twitter_username
@@ -31,19 +37,23 @@
         const message = `Check out this incredible digital art series by ${creator} on @NeonMob`;
         share(channel, "sett-detail", sett.permalink, message);
     }
+
+    // TODO implement switching series
 </script>
 
 <h1>
     {#if $isAuthenticated}
         <div class="actions">
-            <a href="{user.link}/colection/">
+            <a href="{u.username}/colection/" on:click={fail}>
                 <Icon icon="backToCollection" />
-                <span class="hide-on-small">Your</span> Collection
+                <span class="hide-on-small">{firstNamePossessive(u, true)}</span> Collection
             </a>
-            <span>
-                <Icon icon="switchSeries" />
-                Switch <span class="hide-on-small">Series</span>
-            </span>
+            <Clickable on:click={fail}>
+                <span>
+                    <Icon icon="switchSeries" />
+                    Switch <span class="hide-on-small">Series</span>
+                </span>
+            </Clickable>
         </div>
     {/if}
     <a href={sett.permalink} use:cache={{ sett }}>{sett.name}</a>
@@ -71,7 +81,7 @@
     </span>
     {#if $isAuthenticated}
         <span>
-            <SettCompletion {sett} />
+            <SettCompletion {sett} owner={u} />
         </span>
     {/if}
     <span>

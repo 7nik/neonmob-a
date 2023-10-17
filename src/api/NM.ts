@@ -172,7 +172,8 @@ export function findSetts (
         // skip falsy values
         if (key && value) query[key] = value;
     }
-
+    // FIXME non-legacy endpoint doesn't return collection stats
+    // return new PagePaginator<NM.Sett>(makeUrl("api", "/setts/legacy_list/", query), f);
     return new PagePaginator<NM.Sett>(makeUrl("api", "/setts/", query), f);
 }
 
@@ -267,13 +268,8 @@ export function getCreatorSubmissions (id: ID<"user">, f = fetch) {
 /**
  * Get the data of the authenticated user
  */
-export async function getCurrentUserData (f = fetch) {
-    const data1 = await get<NM.UserAccount>("api", "/user/current/", {}, f);
-    const data2 = await get<NM.UserInfo>("api", `/users/${data1.id}/`, {}, f);
-    return {
-        ...data1,
-        ...data2,
-    };
+export function getCurrentUserData (f = fetch) {
+    return get<NM.UserAccount>("api", "/user/current/", {}, f);
 }
 
 /**
@@ -356,8 +352,8 @@ export async function getOwnedPrints (
  * @param id - the user ID
  * @returns - info about collected cards in each user's collection
  */
-export function getOwnedSettsMetrics (id: ID<"user">) {
-    return get<NM.SettMetrics[]>("napi", `/user/${id}/owned-setts-metrics`);
+export function getOwnedSettsMetrics (id: ID<"user">, f = fetch) {
+    return get<NM.SettMetrics[]>("napi", `/user/${id}/owned-setts-metrics`, {}, f);
 }
 
 /**
@@ -373,16 +369,23 @@ export function getPackTiers (id: ID<"sett">) {
  * @param id - the owner ID
  * @returns array of cardID - number of copies
  */
-export function getPrintCounts (id: ID<"user">) {
-    return get<NM.PrintCount[]>("napi", `/user/${id}/print-counts`);
+export function getPrintCounts (id: ID<"user">, f = fetch) {
+    return get<NM.PrintCount[]>("napi", `/user/${id}/print-counts`, {}, f);
 }
 
 /**
  * Get the series info
  * @param id - series ID
  */
-export function getSett (id: ID<"sett">, f = fetch) {
-    return get<NM.Sett>("api", `/setts/${id}/`, {}, f);
+export async function getSett (id: ID<"sett">, ownerId: ID<"user">|null = null, f = fetch) {
+    const sett = await get<NM.Sett>(
+        "api",
+        `/setts/${id}/`,
+        ownerId ? { user_id: ownerId } : {},
+        f,
+    );
+    if (ownerId) sett.ownerId = ownerId;
+    return sett;
 }
 
 /**

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getUserCollections, PagePaginator } from "$api";
+    import { getUserCollections, PagePaginator, ProxyPaginator } from "$api";
     import Icon from "$elem/Icon.svelte";
     import PushSwitch from "$elem/PushSwitch.svelte";
     import Select from "$elem/Select.svelte";
@@ -47,7 +47,11 @@
     let favorite = false;
     let sortOption = sortOptions[0];
 
-    $: setts = PagePaginator.fromPOJO(data.p.setts);
+    $: paginator = PagePaginator.fromPOJO(data.p.setts);
+    $: setts = new ProxyPaginator(paginator, (sett) => {
+        sett.ownerId = data.user.id;
+        return sett;
+    });
     $: loading = setts.isLoadingStore;
 
     // do not do make request during initialization
@@ -57,7 +61,7 @@
         skips -= 1;
     } else {
         console.log("update setts");
-        setts = getUserCollections(
+        paginator = getUserCollections(
             data.user.id,
             sortOption.key,
             sortOption.desc,

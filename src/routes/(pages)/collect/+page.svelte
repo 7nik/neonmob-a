@@ -8,7 +8,7 @@
     import SettTile from "$elem/SettTile.svelte";
     import cache from "$lib/actions/cache";
     import { infiniteScroll } from "$lib/utils/utils";
-    // import Carousel from "./Carousel.svelte";
+    import Carousel from "./Carousel.svelte";
     import Seo from "./Seo.svelte";
 
     export let data;
@@ -33,17 +33,17 @@
 
 <Seo/>
 
-<!-- <Carousel setts={settPages[0].items} title={categories[0].name} /> -->
+{#if settPages[0]?.items.length > 0}
+    <Carousel setts={settPages[0].items} title={categories[0].name} />
+{/if}
 
 <article>
     {#await p.settPages}
         <div class="loading"><Icon icon="loader"/></div>
     {:then}
-        <!-- Milestone suggestions section -->
-        <!-- {#each settPages.slice(1) as settPage, i}
-            {@const category = categories[i + 1]} -->
-        {#each settPages as settPage, i}
-            {@const category = categories[i]}
+        <!-- TODO: Milestone suggestions section -->
+        {#each settPages.slice(1) as settPage, i}
+            {@const category = categories[i + 1]}
             {@const data = { categories, categorySetts: { ...settPage, id: category.id } }}
             {#if settPage.items.length > 0}
                 <section class="category-setts">

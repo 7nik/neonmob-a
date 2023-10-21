@@ -14,13 +14,13 @@
 
     export let data;
 
-    const {
+    $: ({
         creator, user, isFriend, isBlocked, p,
-    } = data;
+    } = data);
     // eslint-disable-next-line unicorn/consistent-destructuring
-    const setts = PagePaginator.fromPOJO(p.setts);
+    $: setts = PagePaginator.fromPOJO(p.setts);
+    $: loadingSetts = setts.isLoadingStore;
     const submissions = PagePaginator.fromPOJO(p.submissions);
-    const loadingSetts = setts.isLoadingStore;
     const loadingSubmissions = submissions.isLoadingStore;
 
     // eslint-disable-next-line max-len

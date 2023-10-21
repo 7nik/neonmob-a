@@ -2,7 +2,7 @@
     The site header bar
  -->
 <script lang="ts">
-    import { afterNavigate } from "$app/navigation";
+    import { afterNavigate, invalidate } from "$app/navigation";
     import { page } from "$app/stores";
     import Avatar from "$elem/Avatar.svelte";
     import Button from "$elem/Button.svelte";
@@ -11,11 +11,24 @@
     import { fail, login } from "$lib/dialogs";
     import UserStuff from "./UserStuff.svelte";
 
-    const { isAuthenticated, resetUser, user } = $page.data.currentUser;
+    const { isAuthenticated, user } = $page.data.currentUser;
 
     afterNavigate(() => {
         (document.getElementById("show-menu") as HTMLInputElement).checked = false;
     });
+
+    async function logIn () {
+        if (await login(true)) {
+            invalidate((url) => url.pathname.includes("/setts/"));
+        }
+    }
+
+    async function logOut () {
+        await fetch("/signout", {
+            redirect: "manual",
+        });
+        window.location.reload();
+    }
 </script>
 
 <nav class:anon={!$isAuthenticated}>
@@ -52,7 +65,7 @@
                 <button type="submit" hidden>Go!</button>
             </form>
         {/if}
-        <label for="show-menu">
+        <label for="show-menu" data-sveltekit-preload-data="tap">
             {#if $isAuthenticated}
                 <a href="/">Dashboard</a>
                 <a href="/{user.username}/collection">Your Collection</a>
@@ -74,7 +87,12 @@
                     <a href="https://help.neonmob.com">Help Center</a>
                     <a href="https://forum.neonmob.com/">Forums</a>
                     <Clickable on:click={fail}><span>Buy credits</span></Clickable>
-                    <a href="/signout/" on:click|preventDefault={resetUser}>Log Out</a>
+                    <a href="/signout/"
+                        data-sveltekit-preload-data="off"
+                        on:click|preventDefault={logOut}
+                    >
+                        Log Out
+                    </a>
                     <hr>
                 </div>
             {/if}
@@ -88,7 +106,7 @@
                 <Button type="subdued-light">start a collection</Button>
             </a>
             <a href="/login?next={encodeURIComponent($page.url.pathname)}"
-                on:click|preventDefault={login}
+                on:click|preventDefault={logIn}
                 data-sveltekit-preload-data="off"
                 data-sveltekit-preload-code="hover"
             >

@@ -34,9 +34,10 @@
     });
 
     let creatorSetts: NM.Sett[] = [];
-    setts.then((arr) => {
-        creatorSetts = arr.filter((s) => s.id !== sett.id).slice(0, 3);
-    });
+    $: setts.then(setCreatorSetts);
+    function setCreatorSetts (setts: NM.Sett[]) {
+        creatorSetts = setts.filter((s) => s.id !== sett.id).slice(0, 3);
+    }
 
     type Rarity = Parameters<typeof settInfo["cards"]>[0];
     function progress (filter: Rarity | rarityName) {

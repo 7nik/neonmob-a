@@ -1,9 +1,7 @@
 import { redirect } from "@sveltejs/kit";
 
-export const GET = async ({ url, cookies }) => {
+export const GET = async ({ cookies }) => {
     cookies.delete("sessionid");
-    if (url.searchParams.has("noredirect")) {
-        return new Response();
-    }
+    cookies.delete("user_id");
     throw redirect(302, "/");
 };

@@ -5,17 +5,22 @@
     import Login from "$elem/Login.svelte";
     import DialogWindow from "./DialogWindow.svelte";
 
-    let close: (reason: null) => void;
+    /**
+     * Whether the dialog can be closed
+     */
+    export let closeable = false;
+
+    let close: (reason: boolean|null) => void;
 
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
     interface $$Events {
-        closed: CustomEvent<null>
+        closed: CustomEvent<boolean|null>
     }
 </script>
 
-<DialogWindow bind:close blurry={"#FFFA"} closeable={false} on:closed>
+<DialogWindow bind:close blurry={"#FFFA"} {closeable} on:closed>
     <div>
-        <Login onSuccess={() => close(null)} />
+        <Login onSuccess={() => close(true)} />
     </div>
 </DialogWindow>
 

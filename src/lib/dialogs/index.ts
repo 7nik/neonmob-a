@@ -100,8 +100,8 @@ export function fail (ev: Event | null = null) {
     alert("Impossiburu", "This isn't implemented yet :`(");
 }
 
-export function login () {
-    return createDialog(Login, {});
+export function login (closeable = false) {
+    return createDialog(Login, { closeable });
 }
 
 /**

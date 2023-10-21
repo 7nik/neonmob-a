@@ -5,7 +5,7 @@ import type { ID } from "$lib/utils/NM Types";
 import type { Readable } from "svelte/store";
 import type { Progress } from "./OwnedCollections";
 
-import { get, readable } from "svelte/store";
+import { get, writable, derived } from "svelte/store";
 import { browser } from "$app/environment";
 import { page } from "$app/stores";
 import { getCurrentUserData, getFreebieBalance, getUserData } from "$api";
@@ -21,6 +21,12 @@ type PublicInterface<T> = {
     [P in keyof T]: T[P];
 }
 class MockUserCards implements PublicInterface<OwnedCards> {
+    #data = writable<OwnedCards|null>(null);
+
+    setSource (data: OwnedCards) {
+        this.#data.set(data);
+    }
+
     get isLoading (): boolean {
         return false;
     }
@@ -31,16 +37,26 @@ class MockUserCards implements PublicInterface<OwnedCards> {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     addPrints (_cards: NM.CardMinimal[]): void {}
-    getPrintCount(_cardId: number): number;
-    getPrintCount(_cardId: number, asStore: true): Readable<number>;
-    getPrintCount (_cardId: number, asStore?: boolean): number | Readable<number> {
-        return asStore ? readable(1) : 1;
+    getPrintCount(cardId: number): number;
+    getPrintCount(cardId: number, asStore: true): Readable<number>;
+    getPrintCount (cardId: number, asStore?: boolean): number | Readable<number> {
+        if (!asStore) return 1;
+        return derived(this.#data, (data, set) => {
+            if (data) {
+                data.getPrintCount(cardId, true).subscribe(set);
+            }
+        }, 1);
     }
 
-    hasPrint(_cardId: number): boolean;
-    hasPrint(_cardId: number, asStore: true): Readable<boolean>;
-    hasPrint (_cardId: number, asStore?: boolean): boolean | Readable<boolean> {
-        return asStore ? readable(true) : true;
+    hasPrint(cardId: number): boolean;
+    hasPrint(cardId: number, asStore: true): Readable<boolean>;
+    hasPrint (cardId: number, asStore?: boolean): boolean | Readable<boolean> {
+        if (!asStore) return true;
+        return derived(this.#data, (data, set) => {
+            if (data) {
+                data.hasPrint(cardId, true).subscribe(set);
+            }
+        }, true);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -51,10 +67,15 @@ class MockUserCards implements PublicInterface<OwnedCards> {
         return [];
     }
 
-    getProgress(_settId: ID<"sett">): Progress;
-    getProgress(_settId: ID<"sett">, asStore: true): Readable<Progress>;
-    getProgress (_settId: ID<"sett">, asStore?: boolean): Progress | Readable<Progress> {
-        return asStore ? readable(EMPTY_PROGRESS) : EMPTY_PROGRESS;
+    getProgress(settId: ID<"sett">): Progress;
+    getProgress(settId: ID<"sett">, asStore: true): Readable<Progress>;
+    getProgress (settId: ID<"sett">, asStore?: boolean): Progress | Readable<Progress> {
+        if (!asStore) return EMPTY_PROGRESS;
+        return derived(this.#data, (data, set) => {
+            if (data) {
+                data.getProgress(settId, true).subscribe(set);
+            }
+        }, EMPTY_PROGRESS);
     }
 }
 
@@ -90,14 +111,16 @@ class CurrentUser {
         trader_score: 7,
     } as NM.UserFriend & NM.User;
 
-    wealth = new MockUserCards();
+    wealth: PublicInterface<OwnedCards> = new MockUserCards();
 
     /**
      * Load main part of the authenticated user data
      */
     private async loadBase (f = fetch) {
         const rawUser = await getCurrentUserData(f);
-        this.wealth = new OwnedCards(rawUser.id, f);
+        const realWealth = new OwnedCards(rawUser.id, f);
+        (this.wealth as MockUserCards).setSource(realWealth);
+        this.wealth = realWealth;
         this.carats = rawUser.carats;
         this.credits = rawUser.credits_balance;
         this.isAuthenticated = true;
@@ -155,34 +178,6 @@ class CurrentUser {
             this.refreshFreebies(f),
         ]);
         await this.wealth.waitLoading();
-    }
-
-    /**
-     * Mark the current user as signed out
-     */
-    resetUser () {
-        this.isAuthenticated = false;
-        this.isProUser = false;
-        this.user = {
-            id: 0,
-            first_name: "You",
-            name: "You",
-            username: "you",
-            avatar: {} as NM.User["avatar"],
-            link: "/",
-            pro_badge: null,
-            pro_status: 0,
-            twitter_username: null,
-            url: "/", // api endpoint
-            bio: "",
-            last_name: "",
-            links: {} as NM.User["links"],
-            trader_score: 7,
-        } as NM.UserFriend & NM.User;
-
-        this.isCurrentUser = this.isCurrentUser;
-
-        fetch("/signout?noredirect"); // erase the session cookie
     }
 
     /**

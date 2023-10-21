@@ -2,12 +2,13 @@
     A login block
  -->
 <script lang="ts">
+    import type { SubmitFunction } from "@sveltejs/kit";
+
     import { enhance } from "$app/forms";
     import { page } from "$app/stores";
     import Button from "$elem/Button.svelte";
     import Icon from "$elem/Icon.svelte";
     import LabeledInput from "$elem/LabeledInput.svelte";
-    import { alert } from "$lib/dialogs";
 
     export let onSuccess: () => any;
 
@@ -19,6 +20,32 @@
     };
     let shaking = false;
     let processing = false;
+    let disabled = false;
+
+    const submit: SubmitFunction = () => {
+        processing = true;
+        return ({ result }) => {
+            processing = false;
+            if (result.type === "failure") {
+                if (result.data?.detail) {
+                    console.error(result.data.detail);
+                }
+                errors.username = true;
+                errors.password = true;
+                shaking = true;
+                setTimeout(() => { shaking = false; }, 1200);
+                if (result.status === 429) {
+                    disabled = true;
+                    let pause = Number(String(result.data?.detail).match("/d+")?.[0]);
+                    pause ||= 60;
+                    setTimeout(() => { disabled = false; }, pause * 1000);
+                }
+            } else if (result.type !== "error") {
+                $page.data.currentUser?.loadUser();
+                onSuccess();
+            }
+        };
+    }
 </script>
 
 <div class:shaking>
@@ -46,25 +73,7 @@
             </a>
         </div>
     </fieldset> -->
-    <form action="/login" method="POST" use:enhance={async () => {
-        processing = true;
-        return ({ result }) => {
-            processing = false;
-            if (result.type === "failure") {
-                if (result.data?.detail) {
-                    alert(String(result.data.detail));
-                } else {
-                    errors.username = true;
-                    errors.password = true;
-                    shaking = true;
-                    setTimeout(() => { shaking = false; }, 1200);
-                }
-            } else if (result.type !== "error") {
-                $page.data.currentUser?.loadUser();
-                onSuccess();
-            }
-        };
-    }}>
+    <form action="/login" method="POST" use:enhance={submit}>
         <LabeledInput
             bind:value={username}
             name="username"
@@ -93,7 +102,9 @@
         {#if processing}
             <span class="loader"><Icon icon="loader" /></span>
         {:else}
-            <Button size="max">Log in</Button>
+            <Button size="max" type={disabled ? "disabled-light" : "primary"}>
+                {disabled ? "slow down, dude" : "Log in"}
+            </Button>
         {/if}
     </form>
     <a href="/login/reset-password/">Forgot password?</a>
@@ -145,6 +156,27 @@
         align-items: center;
         justify-content: center;
         --icon-size: 40px;
+    }
+
+    form :global(button) {
+        position: relative;
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+    form :global(button::after) {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: .3;
+        background: linear-gradient(45deg,rgba(255,255,255,0) 30%,#fff 30%,#fff 50%,rgba(255,255,255,0) 50%) -250px center no-repeat;
+        transition: background .2s ease-in-out;
+    }
+    form :global(button:hover::after) {
+        background-position:250px center;
     }
 
     .shaking {

@@ -13,13 +13,17 @@
 
     export let data;
 
-    const { categories, p } = data;
+    $: ({ categories, p } = data);
     let settPages: PojoPaginator<NM.Sett>[] = [];
     let loading = true;
-    p.settPages.then((pages) => {
-        settPages = pages;
+
+    $: initSetts(p.settPages);
+
+    async function initSetts (setts: Promise<PojoPaginator<NM.Sett>[]>) {
+        loading = true;
+        settPages = await setts;
         loading = false;
-    });
+    }
 
     infiniteScroll(async () => {
         if (loading || categories.length <= settPages.length) return;
@@ -38,37 +42,33 @@
 {/if}
 
 <article>
-    {#await p.settPages}
-        <div class="loading"><Icon icon="loader"/></div>
-    {:then}
-        <!-- TODO: Milestone suggestions section -->
-        {#each settPages.slice(1) as settPage, i}
-            {@const category = categories[i + 1]}
-            {@const data = { categories, categorySetts: { ...settPage, id: category.id } }}
-            {#if settPage.items.length > 0}
-                <section class="category-setts">
-                    <h2>
-                        <a href={category.collect_url} use:cache={data}>
-                            {category.name}
+    <!-- TODO: Milestone suggestions section -->
+    {#each settPages.slice(1) as settPage, i}
+        {@const category = categories[i + 1]}
+        {@const data = { categories, categorySetts: { ...settPage, id: category.id } }}
+        {#if settPage.items.length > 0}
+            <section class="category-setts">
+                <h2>
+                    <a href={category.collect_url} use:cache={data}>
+                        {category.name}
+                    </a>
+                </h2>
+                <HorizontalList>
+                    {#each settPage.items as sett}
+                        <SettTile {sett} />
+                    {/each}
+                    {#if settPage.next}
+                        <a class="more" href={category.collect_url} use:cache={data}>
+                            See More &gt;
                         </a>
-                    </h2>
-                    <HorizontalList>
-                        {#each settPage.items as sett}
-                            <SettTile {sett} />
-                        {/each}
-                        {#if settPage.next}
-                            <a class="more" href={category.collect_url} use:cache={data}>
-                                See More &gt;
-                            </a>
-                        {/if}
-                    </HorizontalList>
-                </section>
-            {/if}
-        {/each}
-        {#if loading}
-            <div class="loading"><Icon icon="loader"/></div>
+                    {/if}
+                </HorizontalList>
+            </section>
         {/if}
-    {/await}
+    {/each}
+    {#if loading}
+        <div class="loading"><Icon icon="loader"/></div>
+    {/if}
 </article>
 
 <style>

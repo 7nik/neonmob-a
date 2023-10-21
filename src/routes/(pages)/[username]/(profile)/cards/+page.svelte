@@ -85,6 +85,7 @@
         viewPrint({
             cardId,
             gallery: cards.items.map((c) => c.id),
+            owner: data.user,
         });
     }
 </script>

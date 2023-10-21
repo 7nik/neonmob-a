@@ -2,6 +2,7 @@
     Block with cards displayed above the profile
  -->
 <script lang="ts">
+    import type NM from "$lib/utils/NM Types";
     import type { ID } from "$lib/utils/NM Types";
 
     import { onMount } from "svelte";
@@ -12,7 +13,7 @@
     import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
     import { viewPrint } from "$lib/overlays";
 
-    export let userId: ID<"user">;
+    export let user: NM.User;
 
     // let folded = true;
     let height = 320;
@@ -27,7 +28,7 @@
 
     let ready = false;
     $: promise = ready
-        ? getDisplayCards(userId)
+        ? getDisplayCards(user.id)
         : Promise.resolve([]);
 
     onMount(() => {
@@ -36,7 +37,7 @@
 
     async function viewCard (cardId: ID<"card">) {
         // eslint-disable-next-line unicorn/no-await-expression-member
-        viewPrint({ cardId, gallery: (await promise).map((c) => c.id) });
+        viewPrint({ cardId, gallery: (await promise).map((c) => c.id), owner: user });
     }
 </script>
 
@@ -47,7 +48,7 @@
             let:item
         >
             <Clickable on:click={() => viewCard(item.id)}>
-                <PrintAsset card={{ ...item, name: "" }} size="large" />
+                <PrintAsset card={{ ...item, name: "" }} size="large" isPublic />
             </Clickable>
         </TwoOrFourColumns>
     {/await}

@@ -17,6 +17,8 @@
     import ShortenText from "$elem/ShortenText.svelte";
     import { viewPrint } from "$lib/overlays";
     import SettInfo from "$lib/utils/SettInfo";
+    import { absUrl } from "$lib/utils/utils";
+    import { page } from "$app/stores";
 
     export let sett: NM.Sett;
     export let cards: Promise<NM.CardName[]>;
@@ -63,6 +65,8 @@
             return column;
         })
         .filter((arr) => arr.length);
+
+    const { isAuthenticated, wealth } = $page.data.currentUser;
 
     function viewCard (card: NM.CardName) {
         viewPrint({ cardId: card.id, gallery: cardNames.map((c) => c.id) });
@@ -116,14 +120,15 @@
                     </header>
                     <div>
                         {#each list as card}
-                            <!-- FIXME implement owner check -->
-                            <!-- FIXME public_url -> absolute url -->
-                            <a href="{card.public_url}" class="owned"
+                            <!-- FIXME make reactive - cannot use $store syntax -->
+                            {@const owned = wealth.hasPrint(card.id) }
+                            <a href="{absUrl(card.public_url)}"
+                                class:owned={owned}
                                 data-sveltekit-preload-data="off"
                                 data-sveltekit-preload-code="hover"
                                 on:click|preventDefault={() => viewCard(card)}
                             >
-                                <Icon icon="checkmark"/>
+                                <Icon icon={owned ? "checkmark" : "block"}/>
                                 {card.name}
                             </a>
                         {/each}
@@ -133,8 +138,10 @@
         </div>
     {/if}
 </section>
-<!-- FIXME: Milestones section -->
-<!-- Leaderboard section -->
+{#if isAuthenticated()}
+    <!-- TODO: Milestones section -->
+    <!-- TODO: Leaderboard section -->
+{/if}
 {#if creatorSetts.length > 0}
     <section class="other-setts">
         <SectionHeader title="{sett.creator.first_name}'s Other Series">

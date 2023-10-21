@@ -49,7 +49,7 @@
                         <PrintAsset
                             card={card}
                             size="small"
-                            isPublic
+                            isPublic={!$page.data.currentUser.isAuthenticated()}
                             showRarity
                             showSettType
                         />

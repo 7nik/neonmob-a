@@ -152,6 +152,7 @@ export function findSetts (
         freebieSett: boolean,
         creditSett: boolean,
         pageSize: number,
+        creatorId: ID<"user">,
     }>,
     f = fetch,
 ) {
@@ -166,6 +167,7 @@ export function findSetts (
         freebies: options.freebieSett,
         credits: options.creditSett,
         page_size: options.pageSize,
+        user_id: options.creatorId,
     };
     const query: GetParams = { page_size: 9 };
     for (const [key, value] of Object.entries(nmOptions)) {
@@ -173,8 +175,8 @@ export function findSetts (
         if (key && value) query[key] = value;
     }
     // FIXME non-legacy endpoint doesn't return collection stats
-    // return new PagePaginator<NM.Sett>(makeUrl("api", "/setts/legacy_list/", query), f);
-    return new PagePaginator<NM.Sett>(makeUrl("api", "/setts/", query), f);
+    return new PagePaginator<NM.Sett>(makeUrl("api", "/setts/legacy_list/", query), f);
+    // return new PagePaginator<NM.Sett>(makeUrl("api", "/setts/", query), f);
 }
 
 /**
@@ -247,11 +249,7 @@ export function getCreator (id: ID<"creator">, f = fetch) {
  * @param pageSize - number of series per page, default - 9
  */
 export function getCreatorSetts (id: ID<"user">, pageSize = 9, f = fetch) {
-    return new PagePaginator<NM.Sett>(makeUrl("api", `/setts/`, {
-        category: "created",
-        page_size: pageSize,
-        user_id: id,
-    }), f);
+    return findSetts("created", "", false, { pageSize, creatorId: id }, f);
 }
 
 /**

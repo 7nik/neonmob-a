@@ -51,7 +51,11 @@
 
 <section>
     <!-- preloaded data isn't used due to using overlays -->
-    <a href={url} on:click={viewActivity} data-sveltekit-preload-code="off"><slot/></a>
+    <a href={url}
+        on:click={viewActivity}
+        data-sveltekit-preload-code="off"
+        data-sveltekit-preload-data="off"
+    ><slot/></a>
     <div class="info">
         <a href={user1.profile_url} class:small={user2}>
             <Avatar user={user1} size="fill" />

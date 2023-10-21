@@ -39,10 +39,13 @@
     import PrintDetails from "$elem/PrintDetails.svelte";
     import { absUrl } from "$lib/utils/utils";
     import CloseableOverlay from "./CloseableOverlay.svelte";
+    import { page } from "$app/stores";
 
     export let cardId: ID<"card">;
     export let gallery: number[] = [];
     export let owner: Pick<NM.User, "id" | "username" | "name" | "avatar"> | null = null;
+
+    $: owner = owner ?? $page.data.currentUser.user;
 
     if (!gallery.includes(cardId)) gallery.push(cardId);
     const cards = gallery
@@ -59,7 +62,7 @@
 
     async function preloadPrint (index: number) {
         if (cards[index]) return cards[index]!;
-        const promise = getOwnedPrints(owner?.id ?? 1, gallery[index]);
+        const promise = getOwnedPrints(owner?.id || 1, gallery[index]);
         cards[index] = promise;
         const ithPrint = await promise;
         cards[index] = ithPrint;
@@ -71,7 +74,7 @@
     async function showPrint (delta: -1|0|1) {
         if (gallery.length < 2) {
             if (!card) {
-                card = await getOwnedPrints(owner?.id ?? 1, cardId);
+                card = await getOwnedPrints(owner?.id || 1, cardId);
             }
             return;
         }

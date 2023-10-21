@@ -7,9 +7,12 @@
     import Icon from "$elem/Icon.svelte";
     import { plural } from "$lib/utils/format";
     import ActivityBase from "./ActivityBase.svelte";
+    import { page } from "$app/stores";
 
     export let activity: NM.ActivityTrade;
-    // TODO greyout unowned cards
+
+    const ownedB = $page.data.currentUser.wealth.hasPrint(activity.bidder.rarest_piece.id, true);
+    const ownedR = $page.data.currentUser.wealth.hasPrint(activity.responder.rarest_piece.id, true);
 </script>
 
 <ActivityBase {activity} actionText="Traded"
@@ -20,6 +23,7 @@
         <figure>
             <img src={activity.bidder.rarest_piece.owned_image_url}
                 alt="Card {activity.bidder.rarest_piece.name}"
+                class:grayOut={!$ownedB}
             />
             <figcaption>
                 <Icon icon={activity.bidder.rarest_piece.rarity} upper />
@@ -37,6 +41,7 @@
         <figure>
             <img src={activity.responder.rarest_piece.owned_image_url}
                 alt="Card {activity.responder.rarest_piece.name}"
+                class:grayOut={!$ownedR}
             />
             <figcaption>
                 <Icon icon={activity.responder.rarest_piece.rarity} upper />
@@ -67,6 +72,9 @@
     img {
         width: 100%;
         display: block;
+    }
+    .grayOut {
+        filter: grayscale(1);
     }
     .overlay {
         position: absolute;

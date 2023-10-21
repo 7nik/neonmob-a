@@ -77,7 +77,7 @@
 </script>
 
 {#if ["collection", "cards", "activity"].includes(tab)}
-    <DisplayCase userId={data.user.id} />
+    <DisplayCase user={data.user} />
 {/if}
 
 <header>

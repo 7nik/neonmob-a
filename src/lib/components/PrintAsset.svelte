@@ -2,51 +2,60 @@
     Renders a card image or video with optional RE/LE/rarity icons
  -->
  <script context="module" lang="ts">
-    import type { rarityCss } from "$lib/utils/NM Types";
+    import type OwnedCards from "$lib/services/OwnedCards";
+    import type { ID, rarityCss } from "$lib/utils/NM Types";
 
-    // import OwnedCards from "$lib/services/ownedCards";
+    import { lazyCurrentUser } from "$lib/services/CurrentUser";
     // import { loadValue } from "$lib/utils/storage";
 
     type SIZE = "small" | "medium" | "large" | "large-promo" | "xlarge" | "original";
-    // type VIDEO_SIZE = "medium" | "large" | "original";
+    type VIDEO_SIZE<S extends SIZE> =
+        S extends "xlarge" ? "large"
+        : S extends "large-promo" ? "large"
+        : S extends "small" ? "medium"
+        : S;
 
-    // Card with card with assets of certain size
-    type SizedCard<S extends SIZE> = Pick<NM.Print, "id"|"name"> & {
-        rarity?: {
-            name: string,
-            class: rarityCss,
-        },
-        piece_assets: {
-            image: Record<S, NM.Image>,
-            video?: Record<
-                S extends "xlarge" ? "large"
-                : S extends "large-promo" ? "large"
-                : S extends "small" ? "medium"
-                : S,
-                NM.Video
-            >,
-        },
-    }
+    const IMG2VIDEO_SIZE: {
+        [s in SIZE]: VIDEO_SIZE<s>
+    } = {
+        small: "medium",
+        medium: "medium",
+        large: "large",
+        "large-promo": "large",
+        xlarge: "large",
+        original: "original",
+    };
+
+    // Card with assets of certain size
+    type SizedCard<S extends SIZE> = Pick<NM.Print, "id"|"name">
+        & Partial<Pick<NM.Print, "is_replica"|"version">>
+        & {
+            rarity?: {
+                name: string,
+                class: rarityCss,
+            },
+            piece_assets: {
+                image: Record<S, NM.Image>,
+                video?: Record<VIDEO_SIZE<S>, NM.Video>,
+            },
+        }
 
     /**
      * Get the info about the asset of the requested size
      */
     function getCardData<S extends SIZE> (card: SizedCard<S>, size: S) {
-        let data: NM.Image & Partial<NM.Video> & { type: "image" | "video" } = {
+        const videoSize = IMG2VIDEO_SIZE[size];
+        if (card.piece_assets.video && videoSize in card.piece_assets.video) {
+            return {
+                type: "video",
+                url: card.piece_assets.image[size].url, // video preview
+                ...card.piece_assets.video[videoSize],
+            } as const;
+        }
+        return {
             type: "image",
             ...card.piece_assets.image[size],
-        };
-        if (card.piece_assets.video
-            && (size in card.piece_assets.video || size === "xlarge")
-        ) {
-            data = {
-                type: "video",
-                url: data.url, // video preview
-                // @ts-ignore - ts isn't enough smart
-                ...card.piece_assets.video[size === "xlarge" ? "large" : size],
-            };
-        }
-        return data;
+        } as const;
     }
 
     /**
@@ -112,14 +121,19 @@
         observer.observe(video);
     }
 
-    // const ownedCards = new OwnedCards(currentUser.id);
+    let ownedCards: Pick<OwnedCards, "hasPrint">;
+    function hasPrint(id: ID<"card">) {
+        if (!ownedCards) {
+            ownedCards = lazyCurrentUser().wealth;
+        }
+        return ownedCards.hasPrint(id, true);
+    }
 
     const muted = true; // loadValue("muteVideo", true);
 </script>
 <script lang="ts">
     import type NM from "$lib/utils/NM Types";
 
-    import { readable } from "svelte/store";
     import Icon from "$elem/Icon.svelte";
     import ratio from "$lib/actions/ratio";
     import tip from "$lib/actions/tip";
@@ -165,28 +179,26 @@
         console.error("No rarity to display");
     }
 
-    // FIXME use ownedCards
-    const ownsCard = readable(true); // ownedCards.hasPrint(card.id, true);
+    const ownsCard = hasPrint(card.id);
     $: grayOut = !isPublic && !$ownsCard;
 
     // show max quality of the video if user owns the card
     // if the original is gif, it, of course, isn't played as video, but
     // image["original"] is still a gif (seems just a copy of the original)
     // so the original gets played as a video poster
-    // if (card.asset_type === "video" && size === "xlarge") {
-    //     size = !isPublic && $ownsCard ? "original" : "large";
-    // }
+    if (card.piece_assets.video && size === "xlarge" && !isPublic && $ownsCard) {
+        // @ts-ignore
+        size = "original";
+    }
 
     const data = getCardData(card, size);
-    // eslint-disable-next-line prefer-const
-    let { width, height } = getDimensionSize(data, maxWidth, maxHeight);
+    const { width, height } = getDimensionSize(data, maxWidth, maxHeight);
     // if (!setSize) {
     //     width = "";
     //     height = "";
     // }
     const showReplica = showSettType && "is_replica" in card && card.is_replica;
     const showLimited = showSettType && "version" in card && card.version === /* lim sett */ 3;
-
     /**
      * Allows to see the colored (and animated) asset during pressing on it
      */
@@ -206,7 +218,6 @@
 
 <svelte:options immutable/>
 
-<!-- <div style:width style:height style:aspect-ratio={ratio} use:makePeekable > -->
 <div class="print-asset" class:showRarity
     use:ratio={{ width, height }}
     use:makePeekable
@@ -216,8 +227,8 @@
             poster={data.url} width="{width}px" height="{height}px" autoplay loop {muted}
             on:click={(ev) => ev.currentTarget.play()}
             use:stopHiddenVideo
+            on:contextmenu|preventDefault
         >
-            <!-- on:contextmenu|preventDefault -->
             {#each data.sources as source}
                 <source src={source.url} type={source.mime_type}>
             {/each}
@@ -255,8 +266,9 @@
         display: block;
     }
     .showRarity img, .showRarity video {
-        mask-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"%3e%3cpath fill="white" d="M0 471c0 2 2 4 4 4h16c3 0 5 2 5 5v16c0 2 2 4 4 4h471V0H0z"/%3e%3c/svg%3e');
-        -webkit-mask-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"%3e%3cpath fill="white" d="M0 471c0 2 2 4 4 4h16c3 0 5 2 5 5v16c0 2 2 4 4 4h471V0H0z"/%3e%3c/svg%3e');
+        --mask: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"%3e%3cpath fill="white" d="M0 471c0 2 2 4 4 4h16c3 0 5 2 5 5v16c0 2 2 4 4 4h471V0H0z"/%3e%3c/svg%3e');
+        mask-image: var(--mask);
+        -webkit-mask-image: var(--mask);
         mask-size: 500px 500px;
         -webkit-mask-size: 500px 500px;
         mask-position: bottom left;

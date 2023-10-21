@@ -19,10 +19,11 @@
     export let card: NM.Unmerged.Prints | NM.Unmerged.Card;
     export let owner: Pick<NM.User, "id" | "username" | "name" | "avatar"> | null;
 
-    const { isAuthenticated, isCurrentUser } = $page.data.currentUser;
+    const { isAuthenticated, isCurrentUser, wealth } = $page.data.currentUser;
 
     $: aspectRatio = card.piece_assets.image.large.width / card.piece_assets.image.large.height;
     $: printCount = "prints" in card ? card.prints.length : 0;
+    const currentUserOwns = wealth.getPrintCount(card.id, true);
 
     function sharePrint (ev: Event) {
         showShare(ev, { card });
@@ -43,8 +44,8 @@
                 isPublic={!$isAuthenticated}
             />
         {/key}
-        {#if owner && "prints" in card && card.prints.length > 0}
-            {@const name = $isCurrentUser(owner) ? "You own" : `${owner.name} owns`}
+        {#if "prints" in card && card.prints.length > 0}
+            {@const name = !owner || $isCurrentUser(owner) ? "You own" : `${owner.name} owns`}
             <!-- FIXME also check if user views own prints -->
             <div class="print-numbers" use:htmlTip={`${name}:<br>#${
                 card.prints.map((p) => p.print_num).join("<br>#")
@@ -86,21 +87,22 @@
                 {/if}
             </div>
         {/if}
-        {#if owner && $isCurrentUser(owner)}
-            <div class="row">
-                <Icon icon={printCount > 1
-                    ? "multiPrints"
-                    : (printCount > 0 ? "checkmark" : "block")
-                } upper={true} />
-                You own {printCount} {plural(printCount, "copy", "copies")}
-            </div>
-        {:else if owner}
+        {#if owner && !$isCurrentUser(owner)}
             <div class="row">
                 <div class="avatar">
                     <Avatar user={owner} size="fill" />
                 </div>
                 <a href="/{owner.username}">{owner.name}</a>
                 owns {printCount} {plural(printCount, "copy", "copies")}
+            </div>
+        {/if}
+        {#if $isAuthenticated}
+            <div class="row">
+                <Icon icon={$currentUserOwns > 1
+                    ? "multiPrints"
+                    : ($currentUserOwns > 0 ? "checkmark" : "block")
+                } upper={true} />
+                You own {$currentUserOwns} {plural($currentUserOwns, "copy", "copies")}
             </div>
         {/if}
         <div class="actions">

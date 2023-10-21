@@ -7,16 +7,22 @@
     import ratio from "$lib/actions/ratio";
     import { plural } from "$lib/utils/format";
     import ActivityBase from "./ActivityBase.svelte";
+    import { page } from "$app/stores";
 
     export let activity: NM.ActivityPack;
-    // TODO greyout unowned cards
+
+    const owned = $page.data.currentUser.wealth.hasPrint(activity.rarest_piece.id, true);
 </script>
 
 <ActivityBase {activity} actionText="Opened packs" user1={activity.user}
     shareText="I'm killing it on @NeonMob today!"
 >
     <figure use:ratio={activity.rarest_piece}>
-        <img src={activity.rarest_piece.owned_image_url} alt="Card {activity.rarest_piece.name}"/>
+        <img
+            src={activity.rarest_piece.owned_image_url}
+            alt="Card {activity.rarest_piece.name}"
+            class:grayOut={!$owned}
+        />
         <figcaption>
             <Icon icon={activity.rarest_piece.rarity} upper />
             <span class="name">{activity.rarest_piece.name}</span>
@@ -43,6 +49,9 @@
     img {
         width: 100%;
         display: block;
+    }
+    .grayOut {
+        filter: grayscale(1);
     }
     figure:hover + .overlay {
         position: absolute;

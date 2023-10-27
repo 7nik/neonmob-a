@@ -1,10 +1,14 @@
 import { error, type ServerLoad } from "@sveltejs/kit";
+import { setGlobalDispatcher, Agent } from "undici";
+
+// see https://github.com/nodejs/undici/issues/1531
+setGlobalDispatcher(new Agent({ connect: { timeout: 60_000 } }));
 
 const servers = {
     pa: "https://www.neonmob.com/api/",
     pn: "https://napi.neonmob.com/",
     sa: "https://staging.neonmob.com/api/",
-    sn: "https://napi-stagging.neonmob.com/",
+    sn: "https://napi-staging.neonmob.com/",
 };
 
 const proxyRequest: ServerLoad = async ({ url, request, params: { s, path } }) => {
@@ -55,6 +59,7 @@ const proxyRequest: ServerLoad = async ({ url, request, params: { s, path } }) =
 export const GET = proxyRequest;
 export const POST = proxyRequest;
 export const PUT = proxyRequest;
+export const PATCH = proxyRequest;
 export const DELETE = proxyRequest;
 
 export const trailingSlash = "ignore";

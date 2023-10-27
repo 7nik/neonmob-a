@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { ProgressBar } from "@prgm/sveltekit-progress-bar";
     import { initOverlays } from "$lib/overlays/useHistory";
     import Topbar from "./Topbar.svelte";
 
@@ -7,7 +6,6 @@
     initOverlays();
 </script>
 
-<ProgressBar color="#C18BF2" zIndex={205} />
 <Topbar/>
 <main>
     <slot></slot>

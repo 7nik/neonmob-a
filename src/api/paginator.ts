@@ -41,7 +41,11 @@ abstract class Paginator<T> implements Readable<T[]> {
     async #getNext (f = fetch) {
         if (!this.#next || this.#lock) return [];
         const promise = this.getPage(this.#next, f);
-        this.#lock = promise;
+        this.#lock = promise.catch(() => ({
+            items: [],
+            next: this.#next,
+            total: this.#total,
+        }));
         this.#lockStore.set(true);
         try {
             const data = await promise;

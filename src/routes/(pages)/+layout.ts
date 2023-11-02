@@ -1,7 +1,8 @@
+import { redirect } from "@sveltejs/kit";
 import { browser } from "$app/environment";
 import CurrentUser from "$lib/services/CurrentUser";
 
-export const load = async ({ data, fetch }) => {
+export const load = async ({ data, fetch, url }) => {
     const currentUser = CurrentUser();
     if (data.hasSession) {
         try {
@@ -17,8 +18,12 @@ export const load = async ({ data, fetch }) => {
                     setTimeout(reset, 86_400_000);
                 }, midnight.getTime() - Date.now());
             }
-        } catch {
-            // do nothing
+        } catch (ex) {
+            console.error("Failed to authenticate", ex);
+            if (ex && typeof ex === "object" && "status" in ex && (ex.status as number) < 500) {
+                await fetch("/signout");
+                throw redirect(302, `/login?next=${encodeURIComponent(url.pathname)}`);
+            }
         }
     }
 

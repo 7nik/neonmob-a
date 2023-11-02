@@ -5,7 +5,6 @@ import type { absoluteURL, fullURL } from "$lib/utils/NM Types";
 import { PUBLIC_API_SERVER, PUBLIC_NAPI_SERVER, PUBLIC_CAPI_SERVER } from "$env/static/public";
 import { error } from "@sveltejs/kit";
 import { getCookie } from "$lib/utils/utils";
-// import { error, getCookie } from "./utils";
 
 type Fetch = typeof fetch;
 type Server = "api" | "napi" | "nma";
@@ -50,7 +49,6 @@ export function makeUrl<S extends Server | "url"> (
  * @return parsed JSON response
  */
 async function request<T> (url: fullURL | URL, body: RequestInit, fetch: Fetch): Promise<T> {
-    // debugger;
     let resp: Response;
     try {
         resp = await fetch(url, body);
@@ -70,17 +68,15 @@ async function request<T> (url: fullURL | URL, body: RequestInit, fetch: Fetch):
     //     resp = await fetch(url, body);
     // }
     if (resp.ok) {
-        return resp.status === 204 ? null : resp.json();
+        return resp.status === 204 ? null : resp.json().then(merge);
     }
 
-    console.error("Non-ok response", url.toString(), resp.status, resp.statusText);
+    console.error("Non-ok response", body.method, url.toString(), resp.status, resp.statusText);
     const text = await resp.text();
     if (`[{"`.includes(text[0])) {
-        const err = JSON.parse(text);
+        const err = merge(JSON.parse(text));
         console.error("JSON reason:", text);
-        if (err.detail) {
-            throw error(resp.status, err.detail);
-        }
+        throw error(resp.status, err.detail ?? err);
     } else if (text.startsWith("<")) {
         const reason = text.match(
             `<div class="container main">\\s+<div[^>]+>\\s+<h1>([^<]+)</h1>`,
@@ -126,6 +122,7 @@ async function request<T> (url: fullURL | URL, body: RequestInit, fetch: Fetch):
  * @param url - a URL to the endpoint (without starting `/api`)
  * @param params - optional params
  * @param fetch_ - the fetch function
+ * @return parsed JSON response
  */
 export function get<T, S extends Server | "url" = Server | "url"> (
     type: S,
@@ -137,14 +134,16 @@ export function get<T, S extends Server | "url" = Server | "url"> (
 }
 
 /**
- * Does a POST request with CSRF token
+ * Does a request with CSRF token via the passed method
+ * @param method - the HTTP method to send the request
  * @param type - the target server
  * @param url - a URL to the endpoint
  * @param body - optional params of the request
  * @param fetch_ - the fetch function
  * @return parsed JSON response
  */
-export async function post<T> (
+function bodyMethod<T> (
+    method: string,
     type: Server,
     url: absoluteURL,
     body?: BodyInit | object,
@@ -159,11 +158,48 @@ export async function post<T> (
         body = JSON.stringify(body);
     }
     return request(makeUrl(type, url, {}), {
-        method: "POST",
+        method,
         body: body as BodyInit,
         headers,
     }, fetch_);
 }
+
+type BodyMethodParams = [
+    type: Server,
+    url: absoluteURL,
+    body?: BodyInit | object,
+    fetch_?: typeof fetch,
+];
+
+/**
+ * Does a POST request with CSRF token
+ * @param type - the target server
+ * @param url - URL to the endpoint
+ * @param body - optional params of the request
+ * @param fetch_ - the fetch function
+ * @return parsed JSON response
+ */
+export const post = <T>(...args: BodyMethodParams) => bodyMethod<T>("POST", ...args);
+
+/**
+ * Does a PUT request with CSRF token
+ * @param type - the target server
+ * @param url - URL to the endpoint
+ * @param body - optional params of the request
+ * @param fetch_ - the fetch function
+ * @return parsed JSON response
+ */
+export const put = <T>(...args: BodyMethodParams) => bodyMethod<T>("PUT", ...args);
+
+/**
+ * Does a PATCH request with CSRF token
+ * @param type - the target server
+ * @param url - URL to the endpoint
+ * @param body - optional params of the request
+ * @param fetch_ - the fetch function
+ * @return parsed JSON response
+ */
+export const patch = <T>(...args: BodyMethodParams) => bodyMethod<T>("PATCH", ...args);
 
 /**
  * Does a DELETE request with CSRF token
@@ -177,12 +213,7 @@ export function del<T> (
     url: absoluteURL,
     fetch_ = fetch,
 ): Promise<T> {
-    return request(makeUrl(type, url, {}), {
-        method: "DELETE",
-        headers: {
-            // "X-CSRFToken": (getCookie("csrftoken") || ""),
-        },
-    }, fetch_);
+    return bodyMethod("DELETE", type, url, undefined, fetch_);
 }
 
 /**
@@ -190,13 +221,22 @@ export function del<T> (
  * @param data - objects container to merge
  * @returns merged data
  */
-export function merge<Data extends object> (data: NM.Unmerged.Container<Data>): Data {
+export function merge<Data extends object> (data: Data|NM.Unmerged.Container<Data>): Data {
+    if (data && (
+        typeof data !== "object"
+        || !("payload" in data)
+        || !("refs" in data)
+    )) {
+        return data;
+    }
+    const { refs } = data as NM.Unmerged.Container<Data>;
+
     function mergeObj (obj: Record<string, any>): any {
         if (typeof obj !== "object" || obj === null) return obj;
         if (Array.isArray(obj)) {
             // if it's a pointer, resolve it
-            if (obj[0] === "ptr" && obj[1] in data.refs) {
-                return mergeObj(data.refs[obj[1]]);
+            if (obj[0] === "ptr" && obj[1] in refs) {
+                return mergeObj(refs[obj[1]]);
             }
             return obj.map(mergeObj);
         }

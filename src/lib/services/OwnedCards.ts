@@ -3,6 +3,7 @@ import type { ID } from "$lib/utils/NM Types";
 import type { Unsubscriber, Readable, Writable } from "svelte/store";
 
 import { derived, readable, writable } from "svelte/store";
+import { browser } from "$app/environment";
 import { getPrintCounts } from "$api";
 import OwnedCollections from "./OwnedCollections";
 
@@ -13,13 +14,17 @@ type CardCounts = Record<ID<"card">, number>;
  * @param userId - the cards owner ID
  * @returns cards owned by the user
  */
-async function fetchCards (userId: ID<"user">, f: typeof fetch) {
+async function fetchCards (userId: ID<"user">, f: typeof fetch): Promise<CardCounts> {
     try {
         const printCounts = await getPrintCounts(userId, f);
-        return Object.fromEntries(printCounts) as CardCounts;
+        return Object.fromEntries(printCounts);
     } catch {
-        await new Promise((res) => { setTimeout(res, 1000); });
-        return fetchCards(userId, f);
+        if (browser) {
+            await new Promise((res) => { setTimeout(res, 1000); });
+            return fetchCards(userId, f);
+        }
+        // do not abuse on server
+        return {};
     }
 }
 

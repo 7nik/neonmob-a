@@ -2,13 +2,15 @@
 #tips > div {
     position: absolute;
     z-index: 1200;
-    background: var(--bg, #FBF8CF);
+    background: var(--bg);
     max-width: 250px;
     color: #2c2830;
     filter: drop-shadow(0 1px 2px #0002);
     text-align: center;
     font-size: 13px;
     box-sizing: content-box;
+    --arrow: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 2"%3e%3cpath d="M3 2c.3 0 .6-.1.8-.3L4.9.6C5.2.3 5.6 0 6 0H0c.4 0 .8.3 1.1.6l1.1 1c.2.3.5.4.7.4H3z"/%3e%3c/svg%3e');
+    --bg: #FBF8CF;
 }
 #tips > div > .arrow {
     width: 18px;
@@ -16,24 +18,23 @@
     position: absolute;
     left: 0;
     bottom: -6px;
-}
-#tips > div > .arrow svg {
-    display: block;
-    width: 100%;
-    fill: var(--bg, #FBF8CF);
+    mask-image: var(--arrow);
+    -webkit-mask-image: var(--arrow);
+    background: var(--bg);
 }
 #tips > div[data-placement=bottom] .arrow {
     bottom: auto;
-    top: -6px
-}
-#tips > div[data-placement=bottom] .arrow svg {
+    top: -6px;
     transform: scaleY(-1);
 }
 #tips > div[data-placement=left] .arrow {
     right: -12px;
     left: auto;
     top: 50%;
-}
-#tips > div[data-placement=left] .arrow svg {
     transform: rotate(-90deg);
+}
+#tips > div[data-placement=right] .arrow {
+    left: -12px;
+    top: 50%;
+    transform: rotate(90deg);
 }

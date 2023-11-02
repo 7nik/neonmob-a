@@ -10,7 +10,6 @@
             goto("/");
         }
     }
-    // TODO shiny button and disable at 429
 </script>
 
 <article>

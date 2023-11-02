@@ -1,8 +1,13 @@
+import type { AssemblyOptions } from "@uppy/transloadit";
 import type NM from "$lib/utils/NM Types";
 import type { ID } from "$lib/utils/NM Types";
 import type NMA from "$lib/utils/NMA Types";
 
 import { get } from "./utils";
+
+export function getTransloaditOptions (f = fetch) {
+    return get<AssemblyOptions>("nma", "/transloadit-options", {}, f);
+}
 
 /**
  * Resolves slugs for a card

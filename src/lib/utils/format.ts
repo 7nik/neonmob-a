@@ -61,6 +61,42 @@ export function num2text (val: number, precision = 1, roundDown = true) {
 }
 
 /**
+ * Represents number as a fraction
+ * @param number - the number to convert
+ * @param options.precision - allowed rounding error, default - 0.01
+ * @param options.delimiter - the fraction delimiter, default - "/"
+ * @param options.reverse - reverse the fraction, default - no
+ * @returns a string representing the number as fraction
+ */
+export function num2fraction (
+    number: number,
+    { precision, delimiter, reverse }: Partial<{
+        precision: number
+        delimiter: string,
+        reverse: boolean,
+    }> = {},
+) {
+    precision ??= 0.01;
+    delimiter ??= "/";
+    const sign = number < 0 ? "-" : "";
+    let n = Math.abs(number);
+    let integer = Math.floor(n);
+    let fraction = n - integer;
+    let numerators = [1, integer];
+    let denominators = [0, 1];
+    while (Math.abs(n - numerators[1] / denominators[1]) > precision) {
+        n = 1 / fraction;
+        integer = Math.floor(n);
+        fraction = n - integer;
+        numerators = [numerators[1], integer * numerators[1] + numerators[0]];
+        denominators = [denominators[1], integer * denominators[1] + denominators[0]];
+    }
+    return reverse
+        ? [sign, denominators[1], delimiter, numerators[1]].join("")
+        : [sign, numerators[1], delimiter, denominators[1]].join("");
+}
+
+/**
  * Formats number with comma. E.g., 1234567 -> 1,234,567
  * @param number - the number to format
  * @returns the formatted number

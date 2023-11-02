@@ -68,15 +68,15 @@
         <label for="show-menu" data-sveltekit-preload-data="tap">
             {#if $isAuthenticated}
                 <a href="/">Dashboard</a>
-                <a href="/{user.username}/collection">Your Collection</a>
+                <a href="/{$user.username}/collection">Your Collection</a>
             {/if}
             <a href="/collect/">Collect</a>
             <a href="/vote/newest">Vote</a>
             <a href="/create">Create</a>
             {#if $isAuthenticated}
                 <label for="global-search" class="show-form"><Icon icon="search"/></label>
-                <a href="/{user.username}" class="avatar">
-                    <Avatar {user} size="small" />
+                <a href="/{$user.username}" class="avatar">
+                    <Avatar user={$user} size="small" />
                 </a>
                 <div class="account-menu">
                     <hr>
@@ -313,7 +313,7 @@
             background: #0006;
             z-index: 200;
             opacity: 0;
-            transition: opacity 0.5s;
+            transition: opacity 0.3s;
         }
         #show-menu:not(:checked) + .menu-overlay {
             pointer-events: none;
@@ -335,7 +335,7 @@
             z-index: 201;
             overflow-y: scroll;
             text-align: left;
-            transition: left 0.5s;
+            transition: left 0.3s;
         }
         #show-menu:checked ~ menu {
             left: 0;
@@ -364,7 +364,7 @@
             background: #ececec;
             color: #2c2830;
         }
-        menu label label, menu .avatar {
+        menu label label, menu .avatar.avatar {
             display: none;
         }
         menu .account-menu {

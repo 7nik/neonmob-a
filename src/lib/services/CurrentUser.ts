@@ -8,7 +8,12 @@ import type { Progress } from "./OwnedCollections";
 import { get, writable, derived } from "svelte/store";
 import { browser } from "$app/environment";
 import { page } from "$app/stores";
-import { getCurrentUserData, getFreebieBalance, getUserData } from "$api";
+import {
+    getCurrentUserData,
+    getFreebieBalance,
+    getUserData,
+    updateAccountSetting,
+} from "$api";
 import { timeTil } from "$lib/utils/date";
 import storefy from "$lib/utils/storefy";
 import OwnedCards from "./OwnedCards";
@@ -85,15 +90,20 @@ class CurrentUser {
     isAuthenticated = false;
     isProUser = false;
     isVerified = false;
+    email = "";
     freebieLimit = 0;
     freebieNext = null as number | null;
     freebieUsed = {} as Record<ID<"sett">, number>;
     freebies = 0;
+    hasUsablePassword = false;
     level = {} as NM.UserLevel;
     referralCode = "";
     referralUrl = "";
     timeToMidnight = "";
-    timeToNextFreebie = "";
+    timeToNextFreebie = "...";
+    timezone = 0;
+    timezoneOrig = 0;
+    vacationMode = false;
     user = {
         id: 0,
         first_name: "You",
@@ -118,18 +128,34 @@ class CurrentUser {
      */
     private async loadBase (f = fetch) {
         const rawUser = await getCurrentUserData(f);
+        // FIXME: for some reason the response can be 200 instead of 401
+        // maybe it happens when the session cookie is wrong/outdated
+        if (!rawUser.id) {
+            throw new Error(`Failed to load user data, reason: ${(rawUser as any).detail}`);
+        }
         const realWealth = new OwnedCards(rawUser.id, f);
         (this.wealth as MockUserCards).setSource(realWealth);
         this.wealth = realWealth;
+
+        this.applyBase(rawUser);
+        return rawUser.id;
+    }
+
+    private applyBase (rawUser: NM.UserAccount) {
         this.carats = rawUser.carats;
         this.credits = rawUser.credits_balance;
         this.isAuthenticated = true;
         this.isProUser = Boolean(rawUser.pro_status);
+        this.email = rawUser.email;
         this.freebieLimit = rawUser.get_freebie_limit;
         this.freebieUsed = rawUser.todays_freebies_count;
+        this.hasUsablePassword = rawUser.has_usable_password;
         this.level = rawUser.level;
         this.referralCode = rawUser.referral_code;
         this.referralUrl = `/join/${rawUser.referral_code}`;
+        this.timezone = rawUser.timezone_offset;
+        this.timezoneOrig = rawUser.original_timezone_offset;
+        this.vacationMode = rawUser.vacation_mode;
         this.user = {
             id: rawUser.id,
             first_name: rawUser.first_name,
@@ -151,8 +177,6 @@ class CurrentUser {
         };
         // to trigger re-running this method
         this.isCurrentUser = this.isCurrentUser;
-
-        return rawUser.id;
     }
 
     private async loadExtra (userId: ID<"user">, f: typeof fetch) {
@@ -178,6 +202,17 @@ class CurrentUser {
             this.refreshFreebies(f),
         ]);
         await this.wealth.waitLoading();
+    }
+
+    /**
+     * Updates the user's data
+     * @param data - fields to update
+     * @throws map of errors in case of failure
+     */
+    async update (data: Partial<NM.UserAccount>) {
+        const newUser = await updateAccountSetting(this.user.id, data);
+        this.applyBase(newUser);
+        await this.loadExtra(newUser.id, fetch);
     }
 
     /**
@@ -250,8 +285,13 @@ export default () => {
     // TODO turn into lazy calculations
     setInterval(() => {
         user.timeToMidnight.set(timeTil(midnight));
-        if (user.freebieNext()) {
-            const time = timeTil(user.freebieNext);
+        if (user.freebies() >= user.freebieLimit()) {
+            user.timeToNextFreebie.set("");
+            return;
+        }
+        const next = user.freebieNext();
+        if (next) {
+            const time = timeTil(next);
             if (!time) user.refreshFreebies();
             user.timeToNextFreebie.set(time || "...");
         } else {

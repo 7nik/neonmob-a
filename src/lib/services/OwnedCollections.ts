@@ -3,6 +3,7 @@ import type { fullURL, ID } from "$lib/utils/NM Types";
 import type { Unsubscriber, Readable, Writable } from "svelte/store";
 
 import { derived, writable } from "svelte/store";
+import { browser } from "$app/environment";
 import { getOwnedSettsMetrics } from "$api";
 
 type MetricsMap = Record<ID<"sett">, NM.SettMetrics>;
@@ -12,7 +13,7 @@ type MetricsMap = Record<ID<"sett">, NM.SettMetrics>;
  * @param userId - the cards owner ID
  * @returns a store with cards owned by the user
  */
-async function fetchCollections (userId: ID<"user">, f: typeof fetch) {
+async function fetchCollections (userId: ID<"user">, f: typeof fetch): Promise<MetricsMap> {
     try {
         const setts = await getOwnedSettsMetrics(userId, f);
         const map: MetricsMap = {};
@@ -21,8 +22,12 @@ async function fetchCollections (userId: ID<"user">, f: typeof fetch) {
         }
         return map;
     } catch {
-        await new Promise((res) => { setTimeout(res, 1000); });
-        return fetchCollections(userId, f);
+        if (browser) {
+            await new Promise((res) => { setTimeout(res, 1000); });
+            return fetchCollections(userId, f);
+        }
+        // do not abuse on server
+        return {};
     }
 }
 

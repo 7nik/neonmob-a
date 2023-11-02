@@ -6,10 +6,23 @@
      * The switch's value
      */
     export let value: boolean;
+    /**
+     * Visually invert the switch state
+     */
+    export let inverted = false;
+
+    function change () {
+        value = !value;
+    }
 </script>
 
 <label>
-    <input type="checkbox" bind:checked={value} >
+    <input
+        type="checkbox"
+        checked={inverted ? !value : value}
+        on:change={change}
+        on:change
+    >
     <span></span>
     <slot/>
 </label>
@@ -19,7 +32,7 @@
         display: flex;
         align-items: center;
         gap: 1ch;
-        font: 300 15px locator-web,Helvetica Neue,Helvetica,Arial,sans-serif;
+        font: 400 15px locator-web,Helvetica Neue,Helvetica,Arial,sans-serif;
         padding-top: 7px;
         cursor: pointer;
     }
@@ -33,7 +46,7 @@
         width: 58px;
         height: 24px;
         position: relative;
-        top: -7px;
+        margin-top: -7px;
         font-size: 10px;
         user-select: none;
         border-radius: 4px;

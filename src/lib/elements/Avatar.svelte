@@ -9,7 +9,7 @@
     export let user: Pick<NM.User, "id"|"avatar"|"username">
         | { avatar_url: string, full_name: string };
     /**
-     * Size of avatar to display, by default - small
+     * Size: small=40px, large=100px, fill=100%, by default - small
      */
     export let size: "small"|"large"|"fill" = "small";
 

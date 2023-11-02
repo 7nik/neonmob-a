@@ -1,11 +1,11 @@
 import type { absoluteURL, ID } from "$lib/utils/NM Types";
 import type NM from "$lib/utils/NM Types";
+import type { GetParams } from "./utils";
 
 import { ArrayPaginator, PagePaginator } from "./paginator";
 import {
-    get, post, del, merge, type GetParams, makeUrl,
+    get, post, del, makeUrl, patch, put,
 } from "./utils";
-// xx
 
 /**
  * Accepts a trade
@@ -30,6 +30,16 @@ export function addFriend (id: ID<"user">) {
  */
 export function blockUser (id: ID<"user">) {
     return post<NM.UserFriend>("api", "/block_user/", { id });
+}
+
+/**
+ * Close the current user's account
+ */
+export async function closeAccount () {
+    const data = await del<{
+        redirect: absoluteURL,
+    }>("api", "/account/close/");
+    return data.redirect;
 }
 
 /**
@@ -279,17 +289,19 @@ export function getDisplayCards (id: ID<"user">) {
     return get<NM.DisplayCard[]>("napi", `/user/${id}/display-case/`);
 }
 
+export async function getEmailSubscriptions (f = fetch) {
+    const data = await get<NM.EmailSubscriptions>("api", "/self/email-subscriptions/", {}, f);
+    return data.email_subscriptions;
+}
+
 /**
  * Get series favorited by a user
  * @param id - the user ID
  * @returns array of favorited series
  */
 export async function getFavoriteCards (id: ID<"user">) {
-    const data = await get<NM.Unmerged.Container<NM.Unmerged.FavoriteCards>>(
-        "api",
-        `/users/${id}/favorites/`,
-    );
-    return merge(data).results;
+    const data = await get<NM.Unmerged.FavoriteCards>("api", `/users/${id}/favorites/`);
+    return data.results;
 }
 
 /**
@@ -298,23 +310,19 @@ export async function getFavoriteCards (id: ID<"user">) {
  * @returns array of favorited series
  */
 export async function getFavoriteSetts (id: ID<"user">) {
-    const data = await get<NM.Unmerged.Container<NM.Unmerged.FavoriteSetts>>(
-        "api",
-        `/users/${id}/favorites/setts/`,
-    );
-    return merge(data).results;
+    const data = await get<NM.Unmerged.FavoriteSetts>("api", `/users/${id}/favorites/setts/`);
+    return data.results;
 }
 
 /**
  * Get the current number of freebies and time of next freebie
  * @returns freebies count and time to next freebie
  */
-export async function getFreebieBalance (f = fetch) {
-    const data = await get<NM.Unmerged.Container<{
+export function getFreebieBalance (f = fetch) {
+    return get<{
         freebies: number,
         seconds: number | null,
-    }>>("api", "/num-freebies-left", {}, f);
-    return merge(data);
+    }>("api", "/num-freebies-left", {}, f);
 }
 
 /**
@@ -331,18 +339,17 @@ export function getFriends () {
  * @param cardId - the card ID
  * @returns short info about the card and the collected prints
  */
-export async function getOwnedPrints (
+export function getOwnedPrints (
     userId: ID<"user">,
     cardId: ID<"card">,
     f = fetch,
 ) {
-    const data = await get<NM.Unmerged.Container<NM.Unmerged.Prints>>(
+    return get<NM.Unmerged.Prints>(
         "api",
         `/users/${userId}/piece/${cardId}/detail/`,
         {},
         f,
     );
-    return merge(data);
 }
 
 /**
@@ -539,14 +546,13 @@ export function getUserData (id: ID<"user">, f = fetch) {
  * @param special - request core or special milestones
  * @returns list milestones
  */
-export async function getUserMilestones (id: ID<"user">, special = false, f = fetch) {
-    const data = await get<NM.Unmerged.Container<NM.BadgeEarned[]>>(
+export function getUserMilestones (id: ID<"user">, special = false, f = fetch) {
+    return get<NM.BadgeEarned[]>(
         "api",
         `/site-badges/user/${id}/`,
         special ? { special: "true" } : {},
         f,
     );
-    return data.payload;
 }
 
 /**
@@ -592,14 +598,8 @@ export function getUserSeriesMilestones (
  * @param id - the user's ID
  * @returns list milestones
  */
-export async function getUserRarityMilestones (id: ID<"user">, f = fetch) {
-    const data = await get<NM.Unmerged.Container<NM.UserRarityStats>>(
-        "api",
-        `/sett-badges/user/${id}/`,
-        {},
-        f,
-    );
-    return data.payload;
+export function getUserRarityMilestones (id: ID<"user">, f = fetch) {
+    return get<NM.UserRarityStats>("api", `/sett-badges/user/${id}/`, {}, f);
 }
 
 /**
@@ -608,11 +608,11 @@ export async function getUserRarityMilestones (id: ID<"user">, f = fetch) {
  * @returns array of favorited series
  */
 export async function getWishlistedCards (id: ID<"user">) {
-    const data = await get<NM.Unmerged.Container<NM.Unmerged.FavoriteCards>>(
+    const data = await get<NM.Unmerged.FavoriteCards>(
         "api",
         `/users/${id}/favorites/?wish_list=True`,
     );
-    return merge(data).results;
+    return data.results;
 }
 
 /**
@@ -644,7 +644,7 @@ export function isUserBlocked (id: ID<"user">) {
  * @param type - notifications type
  */
 export function markNotificationsRead (ids: string[], type: string) {
-    return post<NM.Unmerged.Container<object>>("api", "/notifications/", {
+    return post<object>("api", "/notifications/", {
         ids, notification_type: type,
     });
 }
@@ -658,19 +658,27 @@ export function removeFriend (id: ID<"user">) {
 }
 
 /**
+ * Initialize password reset
+ * @param email - the email bound to the account
+ */
+export function resetPassword (email: string) {
+    return post<null>("api", "/reset-password/", { email });
+}
+
+/**
  * Authenticate the user
  * @param username - the user's login or email
  * @param password - the user's password
  * @returns the authentication result
  */
-export function signIn (username: string, password: string, f = fetch): Promise<{
-    redirect:absoluteURL
-}|{
-    code?: string,
-    detail: string,
-    field_errors?: Record<string, string>,
-}> {
-    return post("api", "/signin/", { username, password }, f);
+export function signIn (username: string, password: string, f = fetch) {
+    return post<{
+        redirect:absoluteURL
+    }|{
+        code?: string,
+        detail: string,
+        field_errors?: Record<string, string>,
+    }>("api", "/signin/", { username, password }, f);
 }
 
 /**
@@ -693,11 +701,8 @@ export async function searchUsers (query: string) {
  * @returns the new state of the card favoritism
  */
 export async function toggleFavoriteCard (id: ID<"card">) {
-    const data = await post<NM.Unmerged.Container<{ favorited: boolean }>>(
-        "api",
-        `/pieces/${id}/favorite/`,
-    );
-    return data.payload.favorited;
+    const data = await post<{ favorited: boolean }>("api", `/pieces/${id}/favorite/`);
+    return data.favorited;
 }
 
 /**
@@ -709,6 +714,18 @@ export function unblockUser (id: ID<"user">) {
 }
 
 /**
+ * Updates user's settings
+ * @param id - the user's id
+ * @param user - the data to update
+ * @returns update user settings
+ * @throws errors in format field_name: [message] (`Record<string, string[]>`)
+ */
+export function updateAccountSetting (id: ID<"user">, user: Partial<NM.UserAccount>) {
+    // PUT method also works but always requires username and email fields
+    return patch<NM.UserAccount>("api", `/accounts/${id}/`, user);
+}
+
+/**
  * Update the cookie with CSRF token.
  * At calling on the server, returns the token
  */
@@ -716,7 +733,39 @@ export function updateCsrfToken (f = fetch) {
     return get<string>("nma", `/csrftoken`, {}, f);
 }
 
-// displayCase: `/user/${id}/display-case`
-// secondsUntilFreebieReady: `/seconds-until-freebie-ready`
-// numFreebieLeft: POST '/num-freebie-left`
-// collection: /api/users/[USER_ID]/collections/[SET_ID]
+/**
+ * Update the email subscriptions
+ * @param options - subscription options
+ * @returns updated subscription options
+ */
+export async function updateEmailSubscriptions (
+    options: NM.EmailSubscriptions["email_subscriptions"],
+) {
+    const data = await post<NM.EmailSubscriptions>(
+        "api",
+        "/self/email-subscriptions/",
+        options,
+    );
+    return data.email_subscriptions;
+}
+
+/**
+ * Update user's password
+ * @param id - the user's id
+ * @param passwords - old and new passwords
+ * @returns nothing in case of success
+ */
+export async function updatePassword (
+    id: ID<"user">,
+    passwords: {
+        password_current: string,
+        password: string,
+        password_confirm: string,
+    },
+) {
+    await put(
+        "api",
+        `/accounts/${id}/password/`,
+        passwords,
+    );
+}

@@ -1,8 +1,25 @@
 {
     "cSpell.words": [
+        "activityfeed",
         "behance",
+        "CAPI",
+        "csrftoken",
+        "csvg",
         "dribbble",
-        "Neonmob"
+        "favorited",
+        "linkify",
+        "napi",
+        "Neonmob",
+        "noreferrer",
+        "signin",
+        "signout",
+        "sonarjs",
+        "storefy",
+        "Transloadit",
+        "Unsubscriber",
+        "uppy",
+        "wishlisted",
+        "xlarge"
     ],
     "typescript.tsdk": "node_modules/typescript/lib"
 }

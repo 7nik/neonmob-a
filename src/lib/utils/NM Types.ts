@@ -403,14 +403,26 @@ declare namespace NM {
         }
     }
 
-    type FriendNotification = Notification<{
-        noun: "friend",
-        type: "friend",
-    }, "friend", "added"/* more verbs? */>
+    type EmailSubscriptions = {
+        email_subscriptions: {
+            rewards: boolean,
+            referrals: boolean,
+            daily_freebies: boolean,
+            followings: boolean,
+            trade_notifications: boolean,
+            liked_submission_published: boolean,
+            newsletter: boolean
+        }
+    }
 
     type Error = {
         detail: string,
     }
+
+    type FriendNotification = Notification<{
+        noun: "friend",
+        type: "friend",
+    }, "friend", "added"/* more verbs? */>
 
     type Image = {
         width: number,

@@ -2,6 +2,7 @@
     Template for dropdown list of items
  -->
 <script lang="ts">
+    import { createEventDispatcher } from "svelte";
     import { onEnter } from "$lib/utils/utils";
     import Icon from "./Icon.svelte";
 
@@ -25,10 +26,16 @@
      */
     export let value: T | null;
 
+    const dispatcher = createEventDispatcher<{
+        change: T | null,
+    }>();
     let opened = false;
 
     function select (item: T) {
-        if (value !== item) value = item;
+        if (value !== item) {
+            value = item;
+            dispatcher("change", item);
+        }
     }
 
     function toggle () {

@@ -1,17 +1,16 @@
 <script lang="ts">
-    import { browser } from "$app/environment";
     import { page } from "$app/stores";
     import Avatar from "$elem/Avatar.svelte";
     import Button from "$elem/Button.svelte";
     import Clickable from "$elem/Clickable.svelte";
     import Icon, { type IconName } from "$elem/Icon.svelte";
     import TradeGrade, { getLetterGrade } from "$elem/TradeGrade.svelte";
+    import progressCircle from "$lib/actions/progressCircle";
     import tip from "$lib/actions/tip";
     import { viewBio } from "$lib/dialogs";
     import { resolve } from "$lib/services/cache";
     import { linky } from "$lib/utils/format";
     import DisplayCase from "./DisplayCase.svelte";
-    import drawProgressCircle from "./drawProgressCircle";
 
     const creatorTip = "I'm a NeonMob Creator! Visit my Creator profile to collect my series.";
 
@@ -35,31 +34,18 @@
         }).observe(elem);
     }
 
-    let canvas: HTMLCanvasElement;
-    $: if (canvas && browser) {
-        // display and animate level progress on the avatar
-        const scale = 0.92; // compensate space taken by the level icon
-        const center = 108; // twice bigger and then scale down by CSS to make it smooth
-        canvas.width = center * 2;
-        canvas.height = center * 2;
-        const ctx = canvas.getContext("2d")!;
-        // rotate canvas so line start right after the level icon
-        ctx.translate(center, center);
-        ctx.rotate(1.22); // 160deg - 70deg in rad
-        ctx.translate(-center, -center);
-
-        drawProgressCircle({
-            ctx,
-            cx: center,
-            cy: center,
-            r: center - 8,
-            thickness: 8,
-            endValue: u.level.current_progress / 100 * scale,
-            bgColor: "#e1e1e1",
-            startColor: u.level.icon_color,
-            endColor: u.level.gradient_color,
-        });
-    }
+    // params for level progress on the avatar
+    $: progressParams = {
+        bgColor: "#e1e1e1",
+        startColor: u.level.icon_color,
+        endColor: u.level.gradient_color,
+        // twice bigger and then scale down by CSS to make it smooth
+        radius: 100,
+        thickness: 8,
+        startAngle: 160,
+        // convert to 0..1 range and compensate space taken by the level icon
+        progress: u.level.current_progress / 100 * 0.92,
+    };
 
     let milestonesCount: number|"?";
     let favoritesCount: number|"?";
@@ -84,7 +70,7 @@
     <div>
         <a class="avatar" href={u.links.profile}>
             <Avatar user={u} size="fill" />
-            <canvas bind:this={canvas} />
+            <canvas use:progressCircle={progressParams} />
             <div class="icon" style:background={u.level.icon_color}>
                 <Icon icon={levelIcon} />
             </div>

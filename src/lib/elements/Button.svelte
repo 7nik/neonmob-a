@@ -130,4 +130,9 @@
     button.subdued-dark:hover {
         box-shadow: inset 0 0 0 1px #0007, inset 0 -1px 0 0 #0003;
     }
+
+    /* icon */
+    button :global([style^=--color]) {
+        align-self: center;
+    }
 </style>

@@ -27,8 +27,7 @@ let dialog: SvelteComponent | null = null;
  * @param props - dialog params
  * @returns the name of the pressed button or `null`
  */
-// export function createDialog<T extends SvelteComponentTyped<any, { closed: CustomEvent<any> }>>
-function createDialog<
+export function createDialog<
     T extends SvelteComponentTyped<any, { closed: CustomEvent<any> }>
 > (
     Component: ConstructorTypeOf<T>,

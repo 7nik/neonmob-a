@@ -34,17 +34,15 @@ type ContentType = "text" | "html" | "element";
 type Content<C extends ContentType> = (C extends "element" ? HTMLElement : string) | null;
 type ContentProvider<C extends ContentType> = Content<C> | (() => Content<C> | Promise<Content<C>>);
 
-const ARROW = `<svg viewBox="0 0 6 2">
-<path d="M3 2c.3 0 .6-.1.8-.3L4.9.6C5.2.3 5.6 0 6 0H0c.4 0 .8.3 1.1.6l1.1 1c.2.3.5.4.7.4H3z">
-</path>
-</svg>`;
+function attachTip (tip: HTMLElement, target: HTMLElement) {
+    // keep tips inside top-level element if needed
+    const parent = target.closest(":modal") ?? document.body;
+    let container = parent.querySelector(":scope > #tips");
 
-let container: HTMLElement;
-function attachTip (tip: HTMLElement) {
     if (!container) {
         container = document.createElement("div");
         container.id = "tips";
-        document.body.append(container);
+        parent.append(container);
     }
     container.append(tip);
 }
@@ -53,12 +51,11 @@ function delay (ms: number) {
     return new Promise((res) => { setTimeout(res, ms); });
 }
 
-function tooltip<C extends ContentType> (type: C, params: TooltipParams) {
+export default function tooltip<C extends ContentType> (type: C, params: TooltipParams) {
     const fullParams = { ...defaultParams, ...params };
 
     const arrowElem = document.createElement("div");
     arrowElem.className = "arrow";
-    arrowElem.innerHTML = ARROW;
 
     let tip: HTMLElement | null = null;
     // let instance: Instance | null = null;
@@ -134,7 +131,7 @@ function tooltip<C extends ContentType> (type: C, params: TooltipParams) {
             tip.addEventListener("mouseenter", cancelHiding);
             tip.addEventListener("click", hide);
         }
-        attachTip(tip);
+        attachTip(tip, elem);
 
         // display the tooltip
         const stopTip = autoUpdate(elem, tip, () => {
@@ -176,7 +173,11 @@ function tooltip<C extends ContentType> (type: C, params: TooltipParams) {
         };
     }
 
-    return [startShowing, hide] as const;
+    return {
+        get tip () { return tip; },
+        show: startShowing,
+        hide,
+    };
 }
 
 type ContentGenerator<C extends ContentType> =
@@ -206,20 +207,20 @@ function tooltipGenerator <C extends ContentType, Params extends Content<C> | an
 ): Action<HTMLElement, Params> {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     if (!browser) return () => {};
-    const [showTooltip, hideTooltip] = tooltip(type, params);
+    const tip = tooltip(type, params);
 
     return (elem: HTMLElement, param?: Params) => {
         elem.addEventListener("mouseenter", () => {
             if (!param) return;
-            showTooltip(elem, provider ? provider(param!) : param as any);
+            tip.show(elem, provider ? provider(param!) : param as any);
         });
         return {
             update (p) {
                 param = p;
             },
-            destroy: hideTooltip,
+            destroy: tip.hide,
         };
     };
 }
 
-export default tooltipGenerator;
+export { tooltipGenerator };

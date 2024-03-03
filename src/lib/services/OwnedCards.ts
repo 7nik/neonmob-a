@@ -2,7 +2,7 @@ import type NM from "$lib/utils/NM Types";
 import type { ID } from "$lib/utils/NM Types";
 import type { Unsubscriber, Readable, Writable } from "svelte/store";
 
-import { derived, readable, writable } from "svelte/store";
+import { derived, writable } from "svelte/store";
 import { browser } from "$app/environment";
 import { getPrintCounts } from "$api";
 import OwnedCollections from "./OwnedCollections";
@@ -29,10 +29,10 @@ async function fetchCards (userId: ID<"user">, f: typeof fetch): Promise<CardCou
 }
 
 class OwnedCards extends OwnedCollections {
-    #cardCounts: CardCounts = {};
+    #cardCounts: CardCounts = { [-1 as ID<"card">]: 1 };
     #cardCountsStore: Writable<CardCounts>;
     #loading = true;
-    #loadingStore;
+    #loadingStore = writable(true);
 
     constructor (userId: ID<"user">, f = fetch) {
         super(userId, f);
@@ -40,26 +40,16 @@ class OwnedCards extends OwnedCollections {
         fetchCards(userId, f).then((cards) => {
             this.#cardCounts = cards;
             this.#cardCountsStore.set(cards);
+            if (super.isLoading) {
+                super.waitLoading().then(() => {
+                    this.#loading = false;
+                    this.#loadingStore.set(false);
+                });
+            } else {
+                this.#loading = false;
+                this.#loadingStore.set(false);
+            }
         });
-        this.#loadingStore = derived(
-            this.#cardCountsStore,
-            (cards, set) => {
-                if (Object.keys(cards).length > 0) {
-                    if (super.isLoading) {
-                        super.waitLoading().then(() => {
-                            set(false);
-                            this.#loading = false;
-                            this.#loadingStore = readable(false);
-                        });
-                    } else {
-                        set(false);
-                        this.#loading = false;
-                        this.#loadingStore = readable(false);
-                    }
-                }
-                set(true);
-            },
-        );
     }
 
     /**
@@ -82,15 +72,15 @@ class OwnedCards extends OwnedCollections {
      */
     waitLoading () {
         return this.isLoading
-            ? new Promise<void>((res) => {
+            ? new Promise<this>((res) => {
                 let unsubscribe: Unsubscriber | null = null;
                 unsubscribe = this.#loadingStore.subscribe((loading) => {
                     if (loading) return;
                     unsubscribe?.();
-                    res();
+                    res(this);
                 });
             })
-            : Promise.resolve();
+            : Promise.resolve(this);
     }
 
     /**

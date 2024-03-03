@@ -11,10 +11,11 @@
     import Icon from "$elem/Icon.svelte";
     import RarityText from "$elem/RarityText.svelte";
     import SettAsset from "$elem/SettCoverWithIcon.svelte";
+    import infiniteScroll from "$lib/actions/infiniteScroll";
     import resolve from "$lib/actions/resolve";
     import tip from "$lib/actions/tip";
     import { ordinal } from "$lib/utils/format";
-    import { absUrl, infiniteScroll } from "$lib/utils/utils";
+    import { absUrl } from "$lib/utils/utils";
     import BadgeImage from "./BadgeImage.svelte";
 
     export let userId: ID<"user">;
@@ -72,14 +73,12 @@
         : new EndlessPaginator<NM.SettMilestones>();
     $: loadingSeries = seriesBadges?.isLoadingStore;
 
-    infiniteScroll(() => seriesBadges.loadMore());
-
     onMount(() => {
         ready = true;
     });
 </script>
 
-<section class="series">
+<section class="series" use:infiniteScroll={() => seriesBadges.loadMore()}>
     <div class="totals">
         {#if rarityBadges}
             <div>

@@ -2,6 +2,7 @@
 // for information about these interfaces
 
 import type { CurrentUserStores } from "$lib/services/CurrentUser";
+import type OtherUsers from "$lib/services/OtherUsers";
 
 declare global {
     namespace App {
@@ -9,6 +10,7 @@ declare global {
         // interface Locals {}
         interface PageData {
             currentUser: CurrentUserStores,
+            otherUsers: OtherUsers,
         }
         // interface Platform {}
     }

@@ -35,6 +35,9 @@
         font-variation-settings: inherit;
     }
     button.link {
-        color: #93d6f9;
+        color: #0d9ce6;
+    }
+    button.link:hover {
+        color: #085b85;
     }
 </style>

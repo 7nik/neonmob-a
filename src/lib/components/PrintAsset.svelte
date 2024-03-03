@@ -284,6 +284,7 @@
     }
     .rarity {
         top: auto;
+        right: auto;
         bottom: 2px;
         left: 2px;
         --icon-size: 20px;

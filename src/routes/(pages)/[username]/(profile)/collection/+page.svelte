@@ -4,7 +4,7 @@
     import PushSwitch from "$elem/PushSwitch.svelte";
     import Select from "$elem/Select.svelte";
     import SettTile from "$elem/SettTile.svelte";
-    import { infiniteScroll } from "$lib/utils/utils";
+    import infiniteScroll from "$lib/actions/infiniteScroll";
 
     export let data;
 
@@ -68,8 +68,6 @@
             { favorite },
         );
     }
-
-    infiniteScroll(() => setts.loadMore());
 </script>
 
 <section class="filters">
@@ -91,7 +89,7 @@
         </span>
     </Select>
 </section>
-<section class="setts">
+<section class="setts" use:infiniteScroll={() => setts.loadMore()}>
     {#if setts.total > 0}
         {#each $setts as sett (sett.id)}
             <SettTile {sett} owner={data.user} />

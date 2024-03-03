@@ -12,14 +12,20 @@
     export let element: Element;
     export let sett: NM.Sett;
     export let owner: NM.UserMinimal;
+    /**
+     * Hide the header with the progress owner's name
+     */
+    export let hideHeader = false;
 </script>
 
 <PopoverWindow {element} on:closed>
-    <h3>
-        {firstNamePossessive(owner, true)}
-        "{sett.name}"
-        Progress
-    </h3>
+    {#if !hideHeader}
+        <h3>
+            {firstNamePossessive(owner, true)}
+            "{sett.name}"
+            Progress
+        </h3>
+    {/if}
     <div>
         <h3>Core Series Progress</h3>
         {#each sett.core_stats as stat}

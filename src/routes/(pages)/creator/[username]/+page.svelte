@@ -20,8 +20,8 @@
     // eslint-disable-next-line unicorn/consistent-destructuring
     $: setts = PagePaginator.fromPOJO(p.setts);
     $: loadingSetts = setts.isLoadingStore;
-    const submissions = PagePaginator.fromPOJO(p.submissions);
-    const loadingSubmissions = submissions.isLoadingStore;
+    $: submissions = PagePaginator.fromPOJO(p.submissions);
+    $: loadingSubmissions = submissions.isLoadingStore;
 
     // eslint-disable-next-line max-len
     const socialNames = ["behance_url", "deviant_art_url", "dribbble_url", "etsy_url", "facebook_url", "instagram_url", "tumblr_url", "twitter_url"] as const;

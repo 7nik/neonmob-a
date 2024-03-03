@@ -1,0 +1,13 @@
+{
+  "alias": {
+    "$api": "./src/api",
+    "$db": "./src/db",
+    "$elem": "./src/lib/elements",
+    "$lib": "./src/lib"
+  },
+  "resolveExtensions": [
+    ".svelte",
+    ".ts"
+  ],
+  "entryFilePath": "/src/routes/(pages)/+layout.svelte"
+}

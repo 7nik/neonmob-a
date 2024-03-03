@@ -5,7 +5,7 @@
     import Icon from "$elem/Icon.svelte";
     import MetaSeo from "$elem/MetaSeo.svelte";
     import Submission from "$elem/Submission.svelte";
-    import { infiniteScroll } from "$lib/utils/utils";
+    import infiniteScroll from "$lib/actions/infiniteScroll.js";
 
     export let data;
 
@@ -15,8 +15,6 @@
     $: submissions = PagePaginator.fromPOJO(data.p.submissions);
     $: loading = submissions.isLoadingStore;
 
-    infiniteScroll(() => submissions.loadMore());
-
     function submitPitch () {
         // TODO implement submitting
         window.open("https://www.neonmob.com/vote/newest");
@@ -25,7 +23,7 @@
 
 <MetaSeo title="Vote on Digital Trading Card Series Proposals" url="/vote" />
 
-<article>
+<article use:infiniteScroll={() => submissions.loadMore()}>
     <header>
         {#if $isAuthenticated}
             <Button on:click={submitPitch}>Submit your pitch</Button>

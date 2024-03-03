@@ -2,64 +2,82 @@
     The sidebar tab icons and user currencies
  -->
 <script lang="ts">
-    import { onDestroy } from "svelte";
+    import { derived } from "svelte/store";
     import { page } from "$app/stores";
+    import { liveListProvider } from "$api";
+    import Clickable from "$elem/Clickable.svelte";
     import FlagCounter from "$elem/FlagCounter.svelte";
     import Icon from "$elem/Icon.svelte";
+    import Sidebar from "$elem/Sidebar.svelte";
     import tip from "$lib/actions/tip";
     import { fail, viewCaratBalance } from "$lib/dialogs";
+    import { sidebarTab } from "$lib/overlays";
     import { plural } from "$lib/utils/format";
-
-    // TODO implement retrieving the following data
-    const milestoneCount = 0;
-    const friendCount = 0;
-    const tradeCount = 0;
-    const messageCount = 0;
-    const notificationCount = 0;
 
     const {
         carats,
         credits,
         freebies,
         timeToNextFreebie,
+        isAuthenticated,
+        isCurrentUser,
     } = $page.data.currentUser;
-    let timer: NodeJS.Timer;
+
+    const friendCount = $page.data.otherUsers.getOnlineNumber();
+    const messageCount = derived(
+        liveListProvider("messages").store,
+        (list) => list.filter((msg) => !msg.read).length,
+    );
+    const tradeCount = derived(
+        liveListProvider("trades").store,
+        (list) => list.filter((trade) => !isCurrentUser(trade.actor)).length,
+    );
+    const notificationCount = derived(
+        liveListProvider("notifications").store,
+        (notifications) => notifications.filter((n) => !n.read).length,
+    );
 
     function buyCredits () {
         // TODO implement?
         fail();
     }
-
-    onDestroy(() => {
-        clearInterval(timer);
-    });
 </script>
 
+{#if $isAuthenticated}
+    <Sidebar/>
+{/if}
 <input type="checkbox" id="fold-user-stuff" checked hidden />
 <div class="sidebar-head">
-    <span>
-        <Icon icon="badge" hint="Milestones"/>
-        <FlagCounter value={milestoneCount} />
-    </span>
-    <span>
-        <Icon icon="owners"
-            hint="You have {friendCount} {plural(friendCount, "friends")} online"
-        />
-        <FlagCounter value={friendCount} color="#17C48D" />
-    </span>
-    <span>
-        <Icon icon="trade"
-            hint="You have {tradeCount} {plural(tradeCount, "trade")} and
-                {messageCount} unread {plural(messageCount, "message")}."
-        />
-        <FlagCounter value={tradeCount + messageCount} />
-    </span>
-    <span>
-        <Icon icon="notifications"
-            hint="You have {notificationCount} {plural(notificationCount, "alert")}"
-        />
-        <FlagCounter value={notificationCount} />
-    </span>
+    <Clickable on:click={() => sidebarTab.set("milestone")}>
+        <span>
+            <Icon icon="badge" hint="Milestones"/>
+        </span>
+    </Clickable>
+    <Clickable on:click={() => sidebarTab.set("friends")}>
+        <span>
+            <Icon icon="owners"
+                hint="You have {$friendCount} {plural($friendCount, "friends")} online"
+            />
+            <FlagCounter value={$friendCount} color="#17C48D" />
+        </span>
+    </Clickable>
+    <Clickable on:click={() => sidebarTab.set("messages")}>
+        <span>
+            <Icon icon="trade"
+                hint="You have {$tradeCount} {plural($tradeCount, "trade")} and
+                    {$messageCount} unread {plural($messageCount, "message")}."
+            />
+            <FlagCounter value={$tradeCount + $messageCount} />
+        </span>
+    </Clickable>
+    <Clickable on:click={() => sidebarTab.set("notifications")}>
+        <span>
+            <Icon icon="notifications"
+                hint="You have {$notificationCount} {plural($notificationCount, "alert")}"
+            />
+            <FlagCounter value={$notificationCount} />
+        </span>
+    </Clickable>
 </div>
 <div class="user-stuff">
     <section class="freebie">

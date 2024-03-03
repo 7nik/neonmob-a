@@ -33,11 +33,11 @@
 
     const { isCurrentUser } = $page.data.currentUser;
 
-    const grade = Math.floor(user.trader_score);
+    $: grade = Math.floor(user.trader_score);
     if (grade < 0 || grade > 13) console.error("Bad grade", user.trader_score);
-    const yourself = isCurrentUser(user);
-    const name = yourself ? "Your" : firstNamePossessive(user);
-    const hint = `${name} trader grade is: ${getLetterGrade(grade)}. ${yourself ? EXTRA : ""}`;
+    $: yourself = isCurrentUser(user);
+    $: name = yourself ? "Your" : firstNamePossessive(user);
+    $: hint = `${name} trader grade is: ${getLetterGrade(grade)}. ${yourself ? EXTRA : ""}`;
 </script>
 
 <svelte:options immutable/>

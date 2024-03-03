@@ -2,6 +2,7 @@
 // eslint-disable-next-line max-classes-per-file
 import type NM from "$lib/utils/NM Types";
 import type { ID } from "$lib/utils/NM Types";
+import type { PublicInterface } from "$lib/utils/NMA Types";
 import type { Readable } from "svelte/store";
 import type { Progress } from "./OwnedCollections";
 
@@ -19,12 +20,6 @@ import storefy from "$lib/utils/storefy";
 import OwnedCards from "./OwnedCards";
 import { EMPTY_PROGRESS } from "./OwnedCollections";
 
-/**
- * Type without private props
- */
-type PublicInterface<T> = {
-    [P in keyof T]: T[P];
-}
 class MockUserCards implements PublicInterface<OwnedCards> {
     #data = writable<OwnedCards|null>(null);
 
@@ -36,8 +31,8 @@ class MockUserCards implements PublicInterface<OwnedCards> {
         return false;
     }
 
-    waitLoading (): Promise<void> {
-        return Promise.resolve();
+    waitLoading () {
+        return Promise.resolve(this as any as OwnedCards);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -87,6 +82,7 @@ class MockUserCards implements PublicInterface<OwnedCards> {
 class CurrentUser {
     carats = 0;
     credits = 0;
+    id: ID<"user"> = 0;
     isAuthenticated = false;
     isProUser = false;
     isVerified = false;
@@ -100,11 +96,11 @@ class CurrentUser {
     referralCode = "";
     referralUrl = "";
     timeToMidnight = "";
-    timeToNextFreebie = "...";
+    timeToNextFreebie: string|null = "...";
     timezone = 0;
     timezoneOrig = 0;
     vacationMode = false;
-    user = {
+    user: NM.UserFriend & NM.User = {
         id: 0,
         first_name: "You",
         name: "You",
@@ -119,9 +115,9 @@ class CurrentUser {
         last_name: "",
         links: {} as NM.User["links"],
         trader_score: 7,
-    } as NM.UserFriend & NM.User;
+    };
 
-    wealth: PublicInterface<OwnedCards> = new MockUserCards();
+    wealth = new MockUserCards() as unknown as OwnedCards;
 
     /**
      * Load main part of the authenticated user data
@@ -133,15 +129,13 @@ class CurrentUser {
         if (!rawUser.id) {
             throw new Error(`Failed to load user data, reason: ${(rawUser as any).detail}`);
         }
-        const realWealth = new OwnedCards(rawUser.id, f);
-        (this.wealth as MockUserCards).setSource(realWealth);
-        this.wealth = realWealth;
 
         this.applyBase(rawUser);
         return rawUser.id;
     }
 
     private applyBase (rawUser: NM.UserAccount) {
+        this.id = rawUser.id;
         this.carats = rawUser.carats;
         this.credits = rawUser.credits_balance;
         this.isAuthenticated = true;
@@ -179,6 +173,12 @@ class CurrentUser {
         this.isCurrentUser = this.isCurrentUser;
     }
 
+    private async loadWealth (userId: ID<"user">, f: typeof fetch) {
+        const realWealth = new OwnedCards(userId, f);
+        (this.wealth as unknown as MockUserCards).setSource?.(realWealth);
+        this.wealth = realWealth;
+    }
+
     private async loadExtra (userId: ID<"user">, f: typeof fetch) {
         const rawExtra = await getUserData(userId, f);
         this.isVerified = rawExtra.is_verified;
@@ -195,9 +195,13 @@ class CurrentUser {
             // eslint-disable-next-line consistent-return
             this.loadBase(f).then((realId) => {
                 if (realId !== userId) {
-                    return this.loadExtra(realId, f);
+                    return Promise.all([
+                        this.loadWealth(realId, f),
+                        this.loadExtra(realId, f),
+                    ]);
                 }
             }),
+            userId ? this.loadWealth(userId, f) : Promise.resolve(),
             userId ? this.loadExtra(userId, f) : Promise.resolve(),
             this.refreshFreebies(f),
         ]);
@@ -210,7 +214,7 @@ class CurrentUser {
      * @throws map of errors in case of failure
      */
     async update (data: Partial<NM.UserAccount>) {
-        const newUser = await updateAccountSetting(this.user.id, data);
+        const newUser = await updateAccountSetting(this.id, data);
         this.applyBase(newUser);
         await this.loadExtra(newUser.id, fetch);
     }
@@ -223,7 +227,9 @@ class CurrentUser {
         this.freebies = data.freebies;
         this.freebieNext = data.seconds ? Date.now() + data.seconds * 1000 : null;
         // TODO calculate real time?
-        this.timeToNextFreebie = data.freebies >= this.freebieLimit ? "" : "...";
+        this.timeToNextFreebie = +this.freebieLimit && this.freebies >= this.freebieLimit
+            ? null
+            : "...";
     }
 
     /**
@@ -232,8 +238,8 @@ class CurrentUser {
      */
     isCurrentUser (userId: NM.User["id"] | Pick<NM.User, "id">) {
         return typeof userId === "number"
-            ? this.user.id === userId
-            : this.user.id === userId.id;
+            ? +this.id === userId
+            : +this.id === userId.id;
     }
 
     // FIXME accessible_features and permissions are only in NM.CurrentUser

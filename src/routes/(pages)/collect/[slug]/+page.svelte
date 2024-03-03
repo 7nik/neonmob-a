@@ -68,7 +68,7 @@
     import Select from "$elem/Select.svelte";
     import SettTile from "$elem/SettTile.svelte";
     import cache from "$lib/actions/cache";
-    import { infiniteScroll } from "$lib/utils/utils";
+    import infiniteScroll from "$lib/actions/infiniteScroll";
     import Seo from "../Seo.svelte";
 
     export let data;
@@ -105,8 +105,6 @@
     }
     let sortOption = sortOptions.find((so) => so.key === "release_date") ?? sortOptions[0];
 
-    infiniteScroll(() => setts.loadMore());
-
     // do not do make request during initialization
     // do two skips due to issue https://github.com/sveltejs/svelte/issues/4265
     let skips = 2;
@@ -142,7 +140,7 @@
     <h1>{selectedCategory?.name ?? ""}</h1>
     <div></div>
 </header>
-<article>
+<article use:infiniteScroll={() => setts.loadMore()}>
     <section class="filters" class:anon={!$isAuthenticated}>
         <span class="filters1">
             <Select list={categories} bind:value={selectedCategory} let:item>

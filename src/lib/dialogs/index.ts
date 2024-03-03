@@ -7,7 +7,10 @@ import type {
 } from "svelte";
 
 import CaratBalance from "./CaratBalance.svelte";
+import CoreCompleted from "./CoreCompleted.svelte";
+import Discarded from "./Discarded.svelte";
 import FullBio from "./FullBio.svelte";
+import LevelUp from "./LevelUp.svelte";
 import Login from "./Login.svelte";
 import Message from "./Message.svelte";
 import SettCompletionPopover from "./SettCompletionPopover.svelte";
@@ -51,7 +54,7 @@ export function createDialog<
  * Show the window about carats of the current user
  */
 export function viewCaratBalance () {
-    createDialog(CaratBalance, {});
+    return createDialog(CaratBalance, {});
 }
 
 /**
@@ -60,7 +63,32 @@ export function viewCaratBalance () {
  * @param editing - start in bio editing state
  */
 export function viewBio (user: NM.User, editing = false) {
-    createDialog(FullBio, { user, editing });
+    return createDialog(FullBio, { user, editing });
+}
+
+/**
+ * Show the window with the reward for completing series core
+ * @param data - the reward data
+ */
+export function viewCoreCompletion (data: NM.Reward) {
+    return createDialog(CoreCompleted, { data });
+}
+
+/**
+ * Show the window with the reward for card discarding
+ * @param earned - number of the earned carats
+ * @param total - the total number of carats
+ */
+export function viewDiscardReward (earned: number, total: number) {
+    return createDialog(Discarded, { earned, total });
+}
+
+/**
+ * Show the window with the level up reward
+ * @param data - the level up info
+ */
+export function viewLevelUp (data: NM.UserLevelUp) {
+    return createDialog(LevelUp, { data });
 }
 
 /**
@@ -151,8 +179,9 @@ export function showSettCompletion (
     target: Element | Event,
     sett: NM.Sett,
     owner: NM.UserMinimal,
+    hideHeader: boolean,
 ) {
-    createPopover(target, SettCompletionPopover, { sett, owner });
+    createPopover(target, SettCompletionPopover, { sett, owner, hideHeader });
 }
 
 /**

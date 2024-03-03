@@ -14,7 +14,7 @@
     import PrintAsset from "$elem/PrintAsset.svelte";
     import resolve from "$lib/actions/resolve";
     import { fail } from "$lib/dialogs";
-    import { viewPrint } from "$lib/overlays";
+    import { viewPrint } from "$lib/overlays/PrintDetailsOverlay.svelte";
 
     const query = derived(page, ($page) => $page.url.searchParams.get("search") ?? "");
     // eslint-disable-next-line @typescript-eslint/no-empty-function

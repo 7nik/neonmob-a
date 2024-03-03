@@ -18,6 +18,8 @@
 
 <style>
     figure {
+        width: 100%;
+        height: 100%;
         position: relative;
         border-radius: 8px;
         overflow: hidden;
@@ -27,12 +29,13 @@
         width: 100%;
         height: 100%;
         vertical-align: bottom;
-        mask-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"%3e%3cpath fill="white" d="M0 475c0 2 2 4 4 4h12c3 0 5 2 5 5v12c0 2 2 4 4 4h475V0H0z"/%3e%3c/svg%3e');
-        -webkit-mask-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"%3e%3cpath fill="white" d="M0 475c0 2 2 4 4 4h12c3 0 5 2 5 5v12c0 2 2 4 4 4h475V0H0z"/%3e%3c/svg%3e');
+        mask-image: var(--mask);
+        -webkit-mask-image: var(--mask);
         mask-size: 500px 500px;
         -webkit-mask-size: 500px 500px;
         mask-position: bottom left;
         -webkit-mask-position: bottom left;
+        --mask: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"%3e%3cpath fill="white" d="M0 476c0 2 2 4 4 4h12c3 0 5 2 5 5v11c0 2 2 4 4 4H500V0H0z"/%3e%3c/svg%3e');
     }
     figure span {
         position: absolute;

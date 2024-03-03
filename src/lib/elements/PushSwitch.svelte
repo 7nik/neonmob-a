@@ -24,12 +24,12 @@
 
     // use local copy to ignore update of `icons`
     const iconArr = Array.isArray(icons) ? icons : [icons, icons];
-    if (Number(value) >= iconArr.length) {
+    if (Number(value) >= iconArr.length && !$$slots.default) {
         console.error(`Icon for the value ${value} wasn't provided: ${icons.length - 1} is max`);
     }
     $: icon = typeof value === "boolean"
-        ? iconArr[value ? 1 : 0] as IconName
-        : iconArr[value] as IconName;
+        ? iconArr[value ? 1 : 0]
+        : iconArr[value];
 
     function toggle () {
         if (typeof value === "boolean") {
@@ -41,7 +41,7 @@
     }
 </script>
 
-<div class:selected={value} use:tip={hint}
+<div class="switch" class:selected={value} use:tip={hint}
     on:click={toggle} tabindex="-1" on:keypress={onEnter(toggle)}
 >
     {#if icon}<Icon {icon} />{/if}

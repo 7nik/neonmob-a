@@ -14,15 +14,13 @@
     let jumping = true;
     $: jump(value);
     function jump (v: number) {
-        if (v < 1) return;
-        jumping = true;
-        setTimeout(() => { jumping = false; }, 500);
+        jumping = v > 0;
     }
 </script>
 
 {#if value > 0}
     <span>
-        <span class:jumping style:--fill={color}>
+        <span style:--fill={color} class:jumping  on:animationend={() => { jumping = false; }}>
             {value}
             <svg xmlns="http://www.w3.org/2000/svg" height="3" width="6" version="1.1" viewBox="0 0 6 3">
                 <path d="M0,0L0,1C0,1.6 0.5,2 1,2C1,2 1.6,2 1.8,1.8L3.6,0.6C4.1,0.3 4.5,0 6,0Z"/>
@@ -38,6 +36,7 @@
     span span {
         position: absolute;
         top: -1.3em;
+        left: 1px;
         height: 1em;
         box-sizing: content-box;
         border-radius: 1em 1em 1em 0;

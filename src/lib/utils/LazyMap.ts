@@ -7,19 +7,21 @@ export default class LazyMap<K = any, V = any> extends Map<K, V> {
     #removing = new Map<K, NodeJS.Timer>();
 
     constructor (timeout?: number);
-    constructor (values?: readonly (readonly [K, V])[], timeout?: number);
+    constructor (values?: readonly (readonly [K, V])[] | null, timeout?: number);
+    constructor (values?: Iterable<readonly [K, V]> | null, timeout?: number);
     /**
      * Creates a LazyMap
      * @param values - optional initial values of the map
      * @param timeout - delay of deletion in ms, default - 1 second
      */
-    constructor (values?: readonly (readonly [K, V])[] | number, timeout?: number) {
-        if (timeout === undefined && typeof values === "number") {
-            timeout = values;
-            values = undefined;
-        }
-        // @ts-ignore - ts is don't see constructor params :(
-        super(values ?? null);
+    constructor (
+        values?: readonly (readonly [K, V])[] | Iterable<readonly [K, V]> | number | null,
+        timeout?: number,
+    ) {
+        [values, timeout] = (typeof values === "number")
+            ? [null, values]
+            : [values, timeout!];
+        super(values);
         if (timeout) this.#timeout = timeout;
     }
 

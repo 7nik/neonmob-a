@@ -190,7 +190,10 @@ class PagePaginator<T> extends Paginator<T> {
             ? makeUrl("api", url.slice(27) as absoluteURL)
             : (url.startsWith("https://node.neonmob.com/")
                 ? makeUrl("napi", url.slice(24) as absoluteURL)
-                : url);
+                // eslint-disable-next-line unicorn/no-nested-ternary
+                : (url.startsWith("/api/")
+                    ? makeUrl("api", url.slice(4) as absoluteURL)
+                    : url));
         const data = await get<NM.Paginated<T>>("url", url, {}, f);
         return {
             next: data.next,
@@ -323,7 +326,7 @@ class StaticPaginator<T> extends Paginator<T> {
 }
 
 /**
- * A class to transform and filter a paginated data
+ * A class to transform and filter a paginated data. `null` items are skipped
  */
 class ProxyPaginator<S, T> extends Paginator<T> {
     static #type = "proxy";

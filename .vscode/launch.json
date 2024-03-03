@@ -5,7 +5,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"command": "npm run dev",
+			"command": "npm run debug",
 			"name": "Debug SvelteKit",
 			"request": "launch",
 			"type": "node-terminal",
@@ -25,7 +25,17 @@
 			"type": "chrome",
 			"request": "launch",
 			"name": "Launch browser",
-			"url": "http://127.0.0.1:5173",
+			"url": "http://localhost:5173",
+			"port": 5173,
+			"smartStep": true,
+			"skipFiles": [
+				"<node_internals>/**",
+				"node_modules/**",
+				"/**/*.js",
+				"/**/*.css",
+				"/*\\.js"
+			],
+			"userDataDir": "${workspaceFolder}/.vscode/chrome",
 			"webRoot": "${workspaceFolder}"
 		}
 	],

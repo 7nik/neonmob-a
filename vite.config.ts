@@ -2,7 +2,10 @@ import fs from "node:fs";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import proxyWebSocket from "./src/routes/api-proxy/[s]/[...path]/proxyWebSocket";
+// import { nodeLoaderPlugin } from "@vavite/node-loader/plugin";
 
+// try running the dev server on HTTPS
 const server = fs.existsSync("cert/key.pem")
     ? {
         https: {
@@ -14,6 +17,19 @@ const server = fs.existsSync("cert/key.pem")
     : {};
 
 export default defineConfig({
-    plugins: [sveltekit(), tsconfigPaths()],
+    plugins: [
+        // nodeLoaderPlugin(),
+        sveltekit(),
+        tsconfigPaths(),
+        {
+            name: "integratedWebsocketServer",
+            configureServer (server) {
+                server.httpServer!.on("upgrade", proxyWebSocket);
+            },
+            configurePreviewServer (server) {
+                server.httpServer!.on("upgrade", proxyWebSocket);
+            },
+        },
+    ],
     server,
 });

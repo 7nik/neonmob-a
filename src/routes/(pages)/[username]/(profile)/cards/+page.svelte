@@ -9,7 +9,7 @@
     import Filters from "$elem/Filters.svelte";
     import MetaSeo from "$elem/MetaSeo.svelte";
     import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
-    import { viewPrint } from "$lib/overlays";
+    import { viewPrint } from "$lib/overlays/PrintDetailsOverlay.svelte";
     import { RARITY } from "$lib/utils/config";
     import { scaleHeight } from "$lib/utils/utils";
 

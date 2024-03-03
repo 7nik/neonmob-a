@@ -9,7 +9,7 @@ type Params = Parameters<typeof setRecent>[0];
  * @param elem - hovering this element will trigger adding to the cache
  * @param params - data to add to cache
  */
-export default ((elem, params = {}) => {
+const cache = ((elem, params = {}) => {
     function addRecent () {
         setRecent(params);
     }
@@ -23,3 +23,5 @@ export default ((elem, params = {}) => {
         },
     };
 }) as Action<HTMLElement, Params>;
+
+export default cache;

@@ -212,7 +212,7 @@ function tooltipGenerator <C extends ContentType, Params extends Content<C> | an
     return (elem: HTMLElement, param?: Params) => {
         elem.addEventListener("mouseenter", () => {
             if (!param) return;
-            tip.show(elem, provider ? provider(param!) : param as any);
+            tip.show(elem, provider ? () => provider(param!) : param as any);
         });
         return {
             update (p) {

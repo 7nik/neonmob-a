@@ -9,7 +9,7 @@
     import PrintAsset from "$elem/PrintAsset.svelte";
     import RarityText from "$elem/RarityText.svelte";
     import resolve from "$lib/actions/resolve";
-    import { viewPrint } from "$lib/overlays";
+    import { viewPrint } from "$lib/overlays/PrintDetailsOverlay.svelte";
 
     /**
      * The card to display

@@ -15,6 +15,10 @@
      */
     export let owner: NM.UserMinimal = $page.data.currentUser.user;
     /**
+     * Hide the header with the progress owner's name
+     */
+    export let hideHeader = false;
+    /**
      * Theme (coloring)
      */
     export let darkTheme = false;
@@ -22,7 +26,7 @@
     function showPopover (ev: Event) {
         ev.preventDefault();
         ev.stopPropagation();
-        showSettCompletion(ev, sett, owner);
+        showSettCompletion(ev, sett, owner, hideHeader);
     }
 </script>
 

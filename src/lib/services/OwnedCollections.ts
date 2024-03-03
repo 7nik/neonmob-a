@@ -198,15 +198,15 @@ class UserCollections {
      */
     waitLoading () {
         return this.#loading
-            ? new Promise<void>((res) => {
+            ? new Promise<this>((res) => {
                 let unsubscribe: Unsubscriber | null = null;
                 unsubscribe = this.#loadingStore.subscribe((loading) => {
                     if (loading) return;
                     unsubscribe?.();
-                    res();
+                    res(this);
                 });
             })
-            : Promise.resolve();
+            : Promise.resolve(this);
     }
 
     /**

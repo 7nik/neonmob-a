@@ -5,7 +5,8 @@
     import type { Paginator } from "$api";
 
     import Icon from "$elem/Icon.svelte";
-    import { array2columns, infiniteScroll } from "$lib/utils/utils";
+    import infiniteScroll from "$lib/actions/infiniteScroll";
+    import { array2columns } from "$lib/utils/utils";
 
     type T = $$Generic<{ id: number }>;
 
@@ -28,13 +29,11 @@
     }
     // clear data when receive new paginator
     $: if (items) columns = [];
-
-    infiniteScroll(() => items.loadMore());
 </script>
 
 <svelte:window bind:innerWidth={pageWidth}/>
 
-<section class="items">
+<section class="items" use:infiniteScroll={() => items.loadMore()}>
     {#each columns as column}
         <div class="column">
             {#each column as item (item.id)}

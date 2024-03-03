@@ -8,7 +8,7 @@
     import Clickable from "$elem/Clickable.svelte";
     import Icon from "$elem/Icon.svelte";
     import ratio from "$lib/actions/ratio";
-    import { viewPrint } from "$lib/overlays";
+    import { viewPrint } from "$lib/overlays/PrintDetailsOverlay.svelte";
 
     /**
      * The main card

@@ -175,3 +175,7 @@ strong {
     display: inline-block;
     vertical-align: middle;
 }
+/* to hide img's alt text during the image loading */
+img:-moz-loading {
+    visibility: hidden;
+}

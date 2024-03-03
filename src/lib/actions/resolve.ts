@@ -1,7 +1,7 @@
 import type { ID } from "$lib/utils/NM Types";
 import type { Action } from "svelte/action";
 
-import { resolve } from "$lib/services/cache";
+import { resolve as resolveCache } from "$lib/services/cache";
 import { absUrl } from "$lib/utils/utils";
 
 type Params = Partial<{
@@ -18,21 +18,21 @@ type Params = Partial<{
  * @param elem - unused
  * @param p - data for resolving
  */
-export default ((_elem, params = {}) => {
+const resolve = ((_elem, params = {}) => {
     function addResolve ({ card, sett, user }: Params) {
         if (card) {
-            resolve.card.set(card.public_url.split("/").slice(-2).join("/"), card.id);
+            resolveCache.card.set(card.public_url.split("/").slice(-2).join("/"), card.id);
         }
         if (sett) {
             const slug = "name_slug" in sett
                 ? sett.name_slug
                 : absUrl("public_url" in sett ? sett.public_url : sett.links.permalink)
                     .split("/")[2];
-            resolve.sett.set(slug, sett.id);
+            resolveCache.sett.set(slug, sett.id);
             if (!user && "creator" in sett) user = sett.creator;
         }
         if (user) {
-            resolve.user.set(user.username, user.id);
+            resolveCache.user.set(user.username, user.id);
         }
     }
 
@@ -44,3 +44,5 @@ export default ((_elem, params = {}) => {
         },
     };
 }) as Action<HTMLElement, Params>;
+
+export default resolve;

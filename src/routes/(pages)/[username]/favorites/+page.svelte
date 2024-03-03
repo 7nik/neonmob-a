@@ -14,7 +14,7 @@
     import Icon from "$elem/Icon.svelte";
     import MetaSeo from "$elem/MetaSeo.svelte";
     import Tabs from "$elem/Tabs.svelte";
-    import { infiniteScroll } from "$lib/utils/utils";
+    import infiniteScroll from "$lib/actions/infiniteScroll";
     import CardListItem from "./CardListItem.svelte";
     import SettListItem from "./SettListItem.svelte";
 
@@ -57,8 +57,6 @@
         }
     }
 
-    infiniteScroll(() => items.loadMore());
-
     onMount(() => {
         if (isAuthenticated()) {
             skip = false;
@@ -71,7 +69,8 @@
 <!-- eslint-disable-next-line max-len -->
 <MetaSeo title="{data.user.first_name} {data.user.last_name} ({data.user.username})'s Favorites on NeonMo" />
 <Tabs basePath="/{data.user.username}/" {tabs} bind:currentTab />
-<section>
+
+<section use:infiniteScroll={() => items.loadMore()}>
     {#each $items as item}
         {#if "sett" in item}
             <CardListItem card={item} {gallery}>

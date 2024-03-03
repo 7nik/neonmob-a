@@ -51,9 +51,17 @@ const handleApiProxy: Handle = async ({ event }) => {
     }
 };
 
-export const handle: Handle = ({ event, resolve }) => {
-    if (event.url.pathname.startsWith("/api-proxy/")) {
-        return handleApiProxy({ event, resolve });
+export const handle: Handle = async ({ event, resolve }) => {
+    // if (event.url.pathname.startsWith("/api-proxy/")) {
+    //     return handleApiProxy({ event, resolve });
+    // }
+    console.log(event.url.href);
+    // debugger;
+    try {
+        const resp = await resolve(event);
+        console.log("resolved", event.url.href);
+        return resp;
+    } catch (ex) {
+        console.error(ex);
     }
-    return resolve(event);
 };

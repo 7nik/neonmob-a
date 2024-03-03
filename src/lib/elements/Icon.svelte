@@ -81,9 +81,9 @@
         "chevron-1": "\uE92E",
         "chevron-2": "\uE92F",
         "chevron-3": "\uE930",
-        "lighting-1": "\uE931",
-        "lighting-2": "\uE932",
-        "lighting-3": "\uE933",
+        "lightning-1": "\uE931",
+        "lightning-2": "\uE932",
+        "lightning-3": "\uE933",
         "crescent-moon-1": "\uE934",
         "crescent-moon-2": "\uE935",
         "crescent-moon-3": "\uE936",
@@ -142,6 +142,8 @@
         "best-streak",
         "carat",
         "card-trading",
+        "no-trading",
+        "trading-only",
         "creator-colored",
         "credit",
         "loader",
@@ -316,11 +318,22 @@
         transform: rotate(45deg);
     }
     .card-trading::before {
+        color: white;
+        display: block;
+        transform: rotate(-45deg);
+    }
+    .card-trading::before, .no-trading::before, .trading-only::before {
         font-family: 'glyphter nm icon font';
         content: 'S';
         color: white;
         display: block;
         transform: rotate(-45deg);
+    }
+    .no-trading::before {
+        color: red;
+    }
+    .trading-only::before {
+        color: #26e600;
     }
     .creator-colored {
         background-image: url('data:image/svg+xml,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 20"%3e%3cpath fill-rule="evenodd" stroke="black" stroke-opacity=".2" stroke-width="4" d="M11.3 11.7c1.2-1.1 3-1 4 .1.4.4.6.8.9 1.5l.1.3c.6 1.6 1 1.9 3 1.4.5-.2.8.5.4.9-2.8 2.5-6.6 2.2-8.7 0a3 3 0 0 1 .3-4.2Zm-.4-.6c-.7.6-1.9.9-2.7-.1a6 6 0 0 1 2.7-2.5c1.1 1 .8 2 0 2.6ZM9 8.4c-1.3.7 0-.1-.8 1.1-.5.8-1 .9-1.5.2l-.2-.2C3.9 7 1.4 3 2 2.3c.8-.8 5 1.8 7.5 4.4l.3.3c.3.5 0 .9-.9 1.4Z" clip-rule="evenodd"/%3e%3cpath fill="%236DBFE2" fill-rule="evenodd" d="M6.2 9.3c-2.5-2.6-4.8-6.3-4-7 .7-.8 4.5 1.6 7.1 4a8.4 8.4 0 0 0-3.1 3Z" clip-rule="evenodd"/%3e%3cpath fill="%23E07BE2" fill-rule="evenodd" d="M10.5 8c.8 1.2.7 2 0 2.7-.8.6-1.7.6-2.8 0 .6-1.2 1.6-2 2.8-2.7Z" clip-rule="evenodd"/%3e%3cpath fill="%23F0B240" fill-rule="evenodd" d="M11.3 11.7c1.2-1.1 3-1 4 .1.4.4.6.8.9 1.5l.1.3c.6 1.6 1 1.9 3 1.4.5-.2.8.5.4.9-2.8 2.5-6.6 2.2-8.7 0a3 3 0 0 1 .3-4.2Z" clip-rule="evenodd"/%3e%3c/svg%3e');

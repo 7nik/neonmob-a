@@ -11,7 +11,7 @@
     import Icon from "$elem/Icon.svelte";
     import PrintAsset from "$elem/PrintAsset.svelte";
     import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
-    import { viewPrint } from "$lib/overlays";
+    import { viewPrint } from "$lib/overlays/PrintDetailsOverlay.svelte";
 
     export let user: NM.User;
 

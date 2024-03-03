@@ -30,7 +30,7 @@
         postfix: "Milestones",
     }] as const;
 
-    if ($page.url.searchParams.has("settId")) {
+    $: if ($page.url.searchParams.has("settId")) {
         $page.url.searchParams.set("tab", "series");
     }
 

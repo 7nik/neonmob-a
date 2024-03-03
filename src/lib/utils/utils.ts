@@ -1,6 +1,5 @@
 import type { absoluteURL, fullURL } from "./NM Types";
 
-import { afterUpdate, onMount } from "svelte";
 import { get } from "svelte/store";
 import { page } from "$app/stores";
 
@@ -28,60 +27,6 @@ export function absUrl (url: string): absoluteURL {
         return url.slice(url.indexOf("/", 8)) as absoluteURL;
     }
     return url as absoluteURL;
-}
-
-// /**
-//  * Finds closest scrollable element
-//  * @param element - the starting element
-//  * @param includeHidden - search for element with `overflow: hidden` as well, by default - no
-//  * @returns closest scrollable parent or passed element
-//  */
-// export function getScrollContainer (element: Element, includeHidden = false) {
-//     let excludeStaticParent = false;
-//     const scrollOverflows = includeHidden ? ["auto", "scroll", "hidden"] : ["auto", "scroll"];
-
-//     while (element) {
-//         const style = getComputedStyle(element);
-//         if (style.position === "fixed") break;
-//         if (!excludeStaticParent && style.position === "absolute") {
-//             excludeStaticParent = true;
-//         }
-//         if ((!excludeStaticParent || style.position !== "static")
-//             && [style.overflow, style.overflowY, style.overflowX]
-//                 .some((overflow) => scrollOverflows.includes(overflow))
-//         ) {
-//             return element;
-//         }
-//         if (!element.parentElement) break;
-//         element = element.parentElement;
-//     }
-
-//     return document.scrollingElement ?? document.documentElement;
-// }
-
-/**
- * A tool for infinite feed in Svelte only
- * @param action - a function to execute when around the bottom
- */
-export function infiniteScroll (action: (() => void)) {
-    const viewport = globalThis.document?.scrollingElement;
-    function onscroll () {
-        if (!viewport) return;
-        // const viewport = document.scrollingElement!;
-        const toBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
-        if (toBottom < 500) {
-            action();
-        }
-    }
-
-    onMount(() => {
-        if (!viewport) return;
-        window.addEventListener("scroll", onscroll);
-        // eslint-disable-next-line consistent-return
-        return () => window.removeEventListener("scroll", onscroll);
-    });
-
-    afterUpdate(onscroll);
 }
 
 /**

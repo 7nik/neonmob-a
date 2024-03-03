@@ -9,7 +9,8 @@
     import Activity, { activityHeight } from "$elem/activity/Activity.svelte";
     import Icon from "$elem/Icon.svelte";
     import ToggleSwitch from "$elem/ToggleSwitch.svelte";
-    import { array2columns, infiniteScroll } from "$lib/utils/utils";
+    import infiniteScroll from "$lib/actions/infiniteScroll";
+    import { array2columns } from "$lib/utils/utils";
 
     /**
      * The activities provider
@@ -148,7 +149,7 @@
     $: columns = array2columns($items, columnCount, activityHeight);
     $: loading = items.isLoadingStore;
 
-    infiniteScroll(async () => {
+    async function loadMore () {
         if ($loading) return;
         // when filtered ensure that added at least one row
         let added = 0;
@@ -156,12 +157,12 @@
             added += arr.length;
             if (added < columnCount) items.loadMore();
         });
-    });
+    }
 </script>
 
 <svelte:window bind:innerWidth={pageWidth}/>
 
-<section>
+<section use:infiniteScroll={loadMore}>
     <div class="filtering">
         <ToggleSwitch bind:value={filterActivity}>Filter for sus trades</ToggleSwitch>
     </div>

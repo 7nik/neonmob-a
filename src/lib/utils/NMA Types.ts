@@ -76,3 +76,10 @@ export type OldPrint = {
     "tags": [],
     "variant_parent_id": null
 }
+
+/**
+ * Type without private props
+ */
+export type PublicInterface<T> = {
+    [P in keyof T]: T[P];
+}

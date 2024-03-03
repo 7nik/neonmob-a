@@ -304,6 +304,24 @@ declare namespace NM {
         setts_url: absoluteURL,
     }
 
+    type Collector = User
+    & Pick<UserData, "link"|"vacation_mode"|"pro_status"|"pro_badge">
+    & Pick<Sett, "core_stats"|"special_stats">
+    & {
+        print_count: number,
+        level: UserLevel,
+        wishlisted: boolean,
+        core_piece_count: number,
+        special_piece_count: number,
+        owned_core_piece_count: number,
+        owned_special_piece_count: number,
+        rank: number,
+        /**
+         * 0-100
+         */
+        owned_percentage: number,
+    }
+
     type ComingSoonNotification = Notification<{
         noun: "Series-remainder",
         type: "Series-remainder",

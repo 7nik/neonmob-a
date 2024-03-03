@@ -55,6 +55,7 @@ export default {
     defaultImageUrl: "/img/diamond_avatar.png",
     defaultAvatarUrl: "/img/default_avatar.png",
     // defaultAvatarUrl: "/img/avatar/default.png",
+    animationAssets: "https://d1ld1je540hac5.cloudfront.net/assets/animations",
     "social_network.conversation": 189,
     "submissions.settconcept": 191,
     "art.sett": 13,

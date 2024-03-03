@@ -22,7 +22,7 @@ const proxyRequest: ServerLoad = async ({ url, request, params: { s, path } }) =
     if (path === "login") {
         path = "../login";
     }
-
+    // console.log("start", url.toString());
     const link = new URL(server + path + url.search);
     request.headers.set("host", link.host);
     request.headers.set("origin", link.origin);
@@ -53,6 +53,7 @@ const proxyRequest: ServerLoad = async ({ url, request, params: { s, path } }) =
         }
         return new Response(body, { headers });
     }
+    // console.log("done", url.toString());
     return resp;
 };
 

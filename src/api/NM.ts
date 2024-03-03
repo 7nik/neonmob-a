@@ -190,6 +190,23 @@ export function findSetts (
 }
 
 /**
+ * Find trade partners for then given card
+ * @param id - the card ID
+ * @param type - search for the card owners or needers
+ * @param options - extra options
+ * @returns paginator over the results
+ */
+export function findTradePartners (
+    id: ID<"card">,
+    type: "needers"|"owners",
+    options: GetParams,
+) {
+    // this endpoint returns the link to previous page in `prev` field instead of
+    // `previous` but we don't use it anyway
+    return new PagePaginator<NM.Collector>(makeUrl("api", `/pieces/${id}/${type}/`, options));
+}
+
+/**
  * Get creator's activity feed
  * @param id - the user ID
  * @param amount - number of items per page
@@ -232,8 +249,8 @@ export function getActivityItem<T extends "pack-opened" | "trade"> (
  * Get users blocked by the current user
  * @returns array of blocked users
  */
-export function getBlockedUsers () {
-    return get<NM.UserFriend[]>("api", "/block_user/");
+export function getBlockedUsers (f = fetch) {
+    return get<NM.UserFriend[]>("api", "/block_user/", {}, f);
 }
 
 /**
@@ -329,8 +346,8 @@ export function getFreebieBalance (f = fetch) {
  * Get the current user's friends
  * @returns paginated array of friends
  */
-export function getFriends () {
-    return new PagePaginator<NM.UserFriend>(makeUrl("api", "/friend/"));
+export function getFriends (f = fetch) {
+    return new PagePaginator<NM.UserFriend>(makeUrl("api", "/friend/"), f);
 }
 
 /**
@@ -620,8 +637,8 @@ export async function getWishlistedCards (id: ID<"user">) {
  * @param id - the user ID to check
  * @returns is the user in the friend list
  */
-export async function isFriend (id: ID<"user">) {
-    const data = await get<{is_friend:boolean}>("api", `/friend/${id}/`);
+export async function isFriend (id: ID<"user">, f = fetch) {
+    const data = await get<{is_friend:boolean}>("api", `/friend/${id}/`, {}, f);
     return data.is_friend;
 }
 
@@ -631,11 +648,11 @@ export async function isFriend (id: ID<"user">) {
  * @param id - the user ID to check
  * @returns whether blocked and who has blocked
  */
-export function isUserBlocked (id: ID<"user">) {
+export function isUserBlocked (id: ID<"user">, f = fetch) {
     return get<{
         is_blocked: boolean,
         user_initiated: boolean,
-    }>("api", `/block_user/${id}/`);
+    }>("api", `/block_user/${id}/`, {}, f);
 }
 
 /**

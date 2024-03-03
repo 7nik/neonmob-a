@@ -12,6 +12,8 @@
     import { fail } from "$lib/dialogs";
     import { onEnter } from "$lib/utils/utils";
     import PrintAsset from "./PrintAsset.svelte";
+    import findTradePartner from "$lib/overlays/tradePartnerFinder";
+    import { toggleFavoriteCard } from "$api";
 
     export let card: NM.OwnedCard|NM.Card;
     // TODO switch to gallery on context?
@@ -27,9 +29,31 @@
     const { isAuthenticated } = $page.data.currentUser;
 
     const ownedCount = card.own_count;
+    let { favorite } = card;
 
     function view () {
         if (isPublic || ownedCount) viewCard(card.id);
+    }
+
+    function trade (ev: Event) {
+        ev.stopPropagation();
+        const sett = "sett_id" in card
+            ? { id: card.sett_id, name: card.sett_name }
+            : { id: 0, name: "" };
+        if (!sett.id) {
+            console.error("No sett for the card", card);
+        }
+        findTradePartner(card, sett, ownedCount > 0)
+    }
+
+    function discard (ev: Event) {
+        // TODO implement discarding
+        ev.stopPropagation(); fail();
+    }
+
+    async function toggleFavorite (ev: Event) {
+        ev.stopPropagation();
+        favorite = await toggleFavoriteCard(card.id);
     }
 </script>
 
@@ -68,21 +92,21 @@
                         ? "Trade with a collector seeking this card"
                         : "Trade with an owner of this card"
                     }
-                    on:click={(ev) => { ev.stopPropagation(); fail(); }}/>
+                    on:click={trade}/>
             <!-- {/if} -->
             {#if ownedCount}
                 <Button icon="discard" type="subdued-light"
                     hint="Discard for {card.rarity.carats} carats"
-                    on:click={(ev) => { ev.stopPropagation(); fail(); }}/>
+                    on:click={discard}/>
             {/if}
             <!-- {#if $currentUser.canDo("favorite")} -->
                 <Button icon={ownedCount
-                    ? (card.favorite ? "liked" : "like")
-                    : (card.favorite ? "wishlisted" : "wishlist")
+                    ? (favorite ? "liked" : "like")
+                    : (favorite ? "wishlisted" : "wishlist")
                 }
                     type="subdued-light"
                     hint="{ownedCount ? "Favorite" : "Wishlist"}"
-                    on:click={(ev) => { ev.stopPropagation(); fail(); }}/>
+                    on:click={toggleFavorite}/>
             <!-- {/if} -->
         </div>
     {/if}

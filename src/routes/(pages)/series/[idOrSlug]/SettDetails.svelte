@@ -15,7 +15,7 @@
     import SectionHeader from "$elem/SectionHeader.svelte";
     import SettTile from "$elem/SettTile.svelte";
     import ShortenText from "$elem/ShortenText.svelte";
-    import { viewPrint } from "$lib/overlays";
+    import { viewPrint } from "$lib/overlays/PrintDetailsOverlay.svelte";
     import SettInfo from "$lib/utils/SettInfo";
     import { absUrl } from "$lib/utils/utils";
     import { page } from "$app/stores";

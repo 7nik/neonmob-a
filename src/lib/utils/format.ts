@@ -134,7 +134,7 @@ type TruncateOptions = Partial<{
 }>;
 
 /**
- * Splits a string into text and links
+ * Wraps links in the text into `<a>`
  * @param text - the text with links
  * @param options.wordLimit - text will be truncated to
 *  this number of words if the number if above this number + `wordTolerance`

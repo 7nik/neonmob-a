@@ -10,7 +10,7 @@
     import CardTile from "$elem/CardTile.svelte";
     import Filters, { type FiltersSchema } from "$elem/Filters.svelte";
     import TwoOrFourColumns from "$elem/TwoOrFourColumns.svelte";
-    import { viewPrint } from "$lib/overlays";
+    import { viewPrint } from "$lib/overlays/PrintDetailsOverlay.svelte";
     import { capitalize } from "$lib/utils/format";
     import { scaleHeight } from "$lib/utils/utils";
 

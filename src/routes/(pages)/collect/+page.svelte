@@ -7,7 +7,7 @@
     import Icon from "$elem/Icon.svelte";
     import SettTile from "$elem/SettTile.svelte";
     import cache from "$lib/actions/cache";
-    import { infiniteScroll } from "$lib/utils/utils";
+    import infiniteScroll from "$lib/actions/infiniteScroll";
     import Carousel from "./Carousel.svelte";
     import Seo from "./Seo.svelte";
 
@@ -25,14 +25,14 @@
         loading = false;
     }
 
-    infiniteScroll(async () => {
+    async function loadMore () {
         if (loading || categories.length <= settPages.length) return;
         loading = true;
         const category = categories[settPages.length];
         const nextSettPage = await findSetts(category.name_slug, "", false, {}).toPOJO();
         settPages = [...settPages, nextSettPage];
         loading = false;
-    });
+    }
 </script>
 
 <Seo/>
@@ -41,7 +41,7 @@
     <Carousel setts={settPages[0].items} title={categories[0].name} />
 {/if}
 
-<article>
+<article use:infiniteScroll={loadMore}>
     <!-- TODO: Milestone suggestions section -->
     {#each settPages.slice(1) as settPage, i}
         {@const category = categories[i + 1]}
